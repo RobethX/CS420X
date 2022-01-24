@@ -1,1 +1,10 @@
 theme: jekyll-theme-minimal
+
+title: Rob Chiocchio
+description: CS420X Assignment Site
+show_downloads: false
+
+repository: RobethX/CS420X
+
+logo: logo.png
+#google_analytics:
