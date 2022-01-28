@@ -1,4 +1,4 @@
 *.gem
-docs/_site
-docs/Gemfile.lock
-docs/.jekyll-cache
+_site
+Gemfile.lock
+.jekyll-cache
