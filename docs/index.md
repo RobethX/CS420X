@@ -1,1 +1,1 @@
-## CS420X Assignments
+- [Assignment 1: Live Shader Coding](/assignment1.html)
