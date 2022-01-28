@@ -1,4 +1,1 @@
-# CS420X
-WPI Graphical Simulation of Physical Systems Course
-
-[My Assignments](https://robch.io/CS420X/)
+- [Assignment 1: Live Shader Coding](assignment1)
