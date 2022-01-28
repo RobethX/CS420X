@@ -1,1 +1,2 @@
 - [Assignment 1: Live Shader Coding](assignment1)
+- [Assignment 2: WebGL Intro](assignment2)
