@@ -65,9 +65,27 @@ window.onload = function() {
     // this will point to the vertices in the last bound array buffer.
     // In this example, we only use one array buffer, where we're storing 
     // our vertices
-    gl.vertexAttribPointer( position, 2, gl.FLOAT, false, 0,0 )
+    gl.vertexAttribPointer( position, 2, gl.FLOAT, false, 0, 0)
 
     video = getVideo()
+
+    const PARAMS = {
+        var1: 1,
+        var2: "#AAAFFF",
+        var3: 0.5,
+    };
+
+    // TODO: send tweakpane vars to gl buffer
+    
+    const pane = new Tweakpane.Pane();
+    
+    pane.addInput(PARAMS, "var1");
+    pane.addInput(PARAMS, "var2");
+    pane.addInput(PARAMS, "var3");
+
+    pane.on("change", (ev)=>{
+        console.log("Pane variable " + JSON.stringify(ev.presetKey) + " changed to " + JSON.stringify(ev.value))
+    })
 }
 
 function getVideo() {
