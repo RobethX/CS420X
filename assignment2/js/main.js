@@ -2,13 +2,13 @@
 let gl, uTime, uRes, program, videoTexture
 
 window.onload = function() {
-    const canvas = document.getElementById( 'gl' )
-    gl = canvas.getContext( 'webgl' )
+    const canvas = document.getElementById( "gl" )
+    gl = canvas.getContext( "webgl" )
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
     // define drawing area of canvas. bottom corner, width / height
-    gl.viewport( 0,0,gl.drawingBufferWidth, gl.drawingBufferHeight )
+    gl.viewport( 0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight )
 
     // create a buffer object to store vertices
     const buffer = gl.createBuffer()
@@ -30,14 +30,14 @@ window.onload = function() {
     gl.bufferData( gl.ARRAY_BUFFER, triangles, gl.STATIC_DRAW )
 
     // create vertex shader
-    let shaderScript = document.getElementById('vertex')
+    let shaderScript = document.getElementById("vertex")
     let shaderSource = shaderScript.text
     const vertexShader = gl.createShader( gl.VERTEX_SHADER )
     gl.shaderSource( vertexShader, shaderSource );
     gl.compileShader( vertexShader )
 
     // create fragment shader
-    shaderScript = document.getElementById('fragment')
+    shaderScript = document.getElementById("fragment")
     shaderSource = shaderScript.text
     const fragmentShader = gl.createShader( gl.FRAGMENT_SHADER )
     gl.shaderSource( fragmentShader, shaderSource );
@@ -54,12 +54,12 @@ window.onload = function() {
     CREATING/LINKING/USING THE SHADER PROGAM */
 
     // find a pointer to the uniform "time" in our fragment shader
-    uTime = gl.getUniformLocation( program, 'time' ) 
-    uRes = gl.getUniformLocation( program, 'resolution' )
+    uTime = gl.getUniformLocation( program, "time" ) 
+    uRes = gl.getUniformLocation( program, "resolution" )
     gl.uniform2f( uRes, window.innerWidth, window.innerHeight )
 
     // get position attribute location in shader
-    const position = gl.getAttribLocation( program, 'a_position' )
+    const position = gl.getAttribLocation( program, "a_position" )
     // enable the attribute
     gl.enableVertexAttribArray( position )
     // this will point to the vertices in the last bound array buffer.
@@ -71,7 +71,7 @@ window.onload = function() {
 }
 
 function getVideo() {
-    const video = document.createElement('video');
+    const video = document.createElement("video");
 
     // request video stream
     navigator.mediaDevices.getUserMedia({
@@ -130,5 +130,5 @@ function render() {
       )
 
     // draw triangles using the array buffer from index 0 to 6 (6 is count)
-    gl.drawArrays( gl.TRIANGLES, 0, 6 )
+    gl.drawArrays( gl.TRIANGLES, 0, 6)
 }
