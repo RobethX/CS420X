@@ -29,19 +29,61 @@
         uniform vec2 resolution;
 
         uniform sampler2D uSampler;
+
+        float random(in vec2 p) {
+            return fract(sin(dot(p.xy, vec2(42.6852, 11.2225))) * 12366.4566);
+        }
+
+        float noise(in vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+
+            float a = random(i);
+            float b = random(i + vec2(1.0, 0.0));
+            float c = random(i + vec2(0.0, 1.0));
+            float d = random(i + vec2(1.0, 1.0));
+            
+            vec2 u = smoothstep(0., 1., f);
+
+            return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+        }
+
+        float fbm(in vec2 p) {
+            float v = 0.0;
+            float a = 0.5;
+            float f = 0.0;
+
+
+            for (int i = 0; i < 6; ++i) {
+                v += a * noise(p);
+                p *= 2.0;
+                a *= 0.5;
+            }
+
+            return v;
+        }
         
         void main() {
             vec2 pos = gl_FragCoord.xy / resolution;
-            vec3 texture = texture2D(uSampler, pos).rgb;
-            vec3 color = texture;
-            gl_FragColor = vec4(vec3(color), 1.);
+            vec2 pos2 = pos;
+
+            float angle = noise(pos + time * 0.01) * 3.14159265359;
+            pos2 += 0.1 * vec2(cos(angle), sin(angle)); // wiggle
+
+            vec3 texture = texture2D(uSampler, pos2).rgb;
+            vec3 woah = vec3(noise(pos2 + time * 0.02), noise(pos2 + time * 0.01), noise(pos2 * sin(time * 0.1)));
+
+            vec3 color = normalize(texture + woah);
+
+            //color = vec3(fbm(pos * 5.));
+
+            gl_FragColor = vec4(color, 1.);
         }
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/regl@2/dist/regl.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweakpane@3/dist/tweakpane.min.js"></script>
 
-    <script src="js/pane.js"></script>
     <script src="js/main.js"></script>
 
 </html>
