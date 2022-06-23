@@ -67,8 +67,6 @@ window.onload = function() {
     // our vertices
     gl.vertexAttribPointer( position, 2, gl.FLOAT, false, 0, 0)
 
-    video = getVideo()
-
     const PARAMS = {
         var1: 1,
         var2: "#AAAFFF",
@@ -86,20 +84,23 @@ window.onload = function() {
     pane.on("change", (ev)=>{
         console.log("Pane variable " + JSON.stringify(ev.presetKey) + " changed to " + JSON.stringify(ev.value))
     })
+
+    video = getVideo()
 }
 
 function getVideo() {
-    const video = document.createElement("video");
+    const video = document.createElement("video")
 
     // request video stream
     navigator.mediaDevices.getUserMedia({
-      video:true
+        video: { width: 1280, height: 720 }
     }).then( stream => { 
-      // this block happens when the video stream has been successfully requested
-      video.srcObject = stream
-      video.play()
-      makeTexture()
-    }) 
+        // this block happens when the video stream has been successfully requested
+        video.srcObject = stream
+        video.play()
+
+        makeTexture()
+    })
       
     return video
   }
@@ -109,7 +110,7 @@ function getVideo() {
     videoTexture = gl.createTexture()
     
     // this tells OpenGL which texture object to use for subsequent operations
-    gl.bindTexture( gl.TEXTURE_2D, videoTexture )
+    gl.bindTexture( gl.TEXTURE_2D, videoTexture)
       
     // since canvas draws from the top and shaders draw from the bottom, we
     // have to flip our canvas when using it as a shader.
@@ -125,6 +126,18 @@ function getVideo() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE )
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE )
     
+    gl.texImage2D( 
+        gl.TEXTURE_2D,    // target: you will always want gl.TEXTURE_2D
+        0,                // level of detail: 0 is the base
+        gl.RGBA,          // internal color format
+        1280,             // width
+        720,              // height
+        0,                // border: always 0
+        gl.RGBA,          // color format
+        gl.UNSIGNED_BYTE, // type: the type of texture data; 0-255
+        null             // pixel source: could also be video or image
+    )
+
     render()
   }
 
@@ -138,14 +151,15 @@ function render() {
     // update time on CPU and GPU
     time++
     gl.uniform1f( uTime, time )
-
-    gl.texImage2D( 
+    
+    gl.texSubImage2D( // use this instead of texImage2D again to (try to) fix firefox memory leak
         gl.TEXTURE_2D,    // target: you will always want gl.TEXTURE_2D
         0,                // level of detail: 0 is the base
-        gl.RGBA, gl.RGBA, // color formats
+        0, 0,             // offsets
+        gl.RGBA,          // color formats
         gl.UNSIGNED_BYTE, // type: the type of texture data; 0-255
         video             // pixel source: could also be video or image
-      )
+    )
 
     // draw triangles using the array buffer from index 0 to 6 (6 is count)
     gl.drawArrays( gl.TRIANGLES, 0, 6)
