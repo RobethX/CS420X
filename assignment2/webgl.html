@@ -1,24 +1,26 @@
 <!doctype html>
-<html lang='en'>
+<html lang="en">
     <head>
-        <style>body{ margin:0 }</style>
+        <style>
+            body{ margin:0; }
+        </style>
     </head>
 
     <body>
-        <canvas id='gl'></canvas>
+        <canvas id="gl"></canvas>
     </body>
 
     <!-- vertex shader, as simple as possible -->
-    <script id='vertex' type='x-shader/x-vertex'>
+    <script id="vertex" type="x-shader/x-vertex">
         attribute vec2 a_position;
 
         void main() {
-            gl_Position = vec4( a_position, 0., 1. );
+            gl_Position = vec4(a_position, 0., 1.);
         }
     </script>
 
     <!-- fragment shader -->
-    <script id='fragment' type='x-shader/x-fragment'>
+    <script id="fragment" type="x-shader/x-fragment">
         #ifdef GL_ES
         precision mediump float;
         #endif
@@ -30,8 +32,9 @@
         
         void main() {
             vec2 pos = gl_FragCoord.xy / resolution;
-            vec3 color = texture2D( uSampler, pos ).rgb;
-            gl_FragColor = vec4( vec3( color ), 1. );
+            vec3 texture = texture2D(uSampler, pos).rgb;
+            vec3 color = texture;
+            gl_FragColor = vec4(vec3(color), 1.);
         }
     </script>
     
