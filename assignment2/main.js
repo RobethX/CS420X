@@ -1,5 +1,5 @@
 // "global" variables
-let gl, uTime, uRes, program, videoTexture
+let gl, uTime, uRes, program, videoTexture, cursorPos
 
 window.onload = function() {
     const canvas = document.getElementById( "gl" )
@@ -67,25 +67,145 @@ window.onload = function() {
     // our vertices
     gl.vertexAttribPointer( position, 2, gl.FLOAT, false, 0, 0)
 
+
+    // ====== tweakpane ======
+
     const PARAMS = {
-        var1: 1,
-        var2: "#AAAFFF",
-        var3: 0.5,
+        magnify: true,
+        zoom: 0.5,
+        radius: 0.1,
+        wobble: true,
+        speed: 1.0,
+        mix: 0.5,
+        edges: true,
+        threshold: 0.75,
+        color: "#8070FF",
     };
 
     // TODO: send tweakpane vars to gl buffer
     
     const pane = new Tweakpane.Pane();
-    
-    pane.addInput(PARAMS, "var1");
-    pane.addInput(PARAMS, "var2");
-    pane.addInput(PARAMS, "var3");
 
-    pane.on("change", (ev)=>{
-        console.log("Pane variable " + JSON.stringify(ev.presetKey) + " changed to " + JSON.stringify(ev.value))
+    const uMagnify = gl.getUniformLocation(program, "u_magnify");
+    gl.uniform1f(uMagnify, PARAMS.magnify);
+    pane.addInput(PARAMS, "magnify").on("change", e => {
+        gl.uniform1f(uMagnify, e.value);
+    });
+    
+    const uZoom = gl.getUniformLocation(program, "u_zoom");
+    gl.uniform1f(uZoom, PARAMS.zoom);
+    pane.addInput(PARAMS, "zoom", {
+        min: 0.0,
+        max: 1.0,
+    }).on("change", e => {
+        gl.uniform1f(uZoom, e.value); 
+    });
+
+    const uRadius = gl.getUniformLocation(program, "u_radius");
+    gl.uniform1f(uRadius, PARAMS.radius);
+    pane.addInput(PARAMS, "radius", {
+        min: 0.0,
+        max: 0.5,
+    }).on("change", e => {
+        gl.uniform1f(uRadius, e.value); 
+    });
+
+    pane.addSeparator();
+
+    const uWobble = gl.getUniformLocation(program, "u_wobble");
+    gl.uniform1f(uWobble, PARAMS.wobble);
+    pane.addInput(PARAMS, "wobble").on("change", e => {
+        gl.uniform1f(uWobble, e.value);
+    });
+
+    const uSpeed = gl.getUniformLocation(program, "u_speed");
+    gl.uniform1f(uSpeed, PARAMS.speed);
+    pane.addInput(PARAMS, "speed", {
+        min: 0.0,
+        max: 5.0,
+    }).on("change", e => {
+        gl.uniform1f(uSpeed, e.value); 
+    });
+
+    pane.addSeparator();
+
+    const uMix = gl.getUniformLocation(program, "u_mix");
+    gl.uniform1f(uMix, PARAMS.mix);
+    pane.addInput(PARAMS, "mix", {
+        min: 0.0,
+        max: 1.0,
+    }).on("change", e => {
+        gl.uniform1f(uMix, e.value); 
+    });
+
+    pane.addSeparator();
+
+    const uEdges = gl.getUniformLocation(program, "u_edges");
+    gl.uniform1f(uEdges, PARAMS.edges);
+    pane.addInput(PARAMS, "edges").on("change", e => {
+        gl.uniform1f(uEdges, e.value);
+    });
+
+    const uThreshold = gl.getUniformLocation(program, "u_threshold");
+    gl.uniform1f(uThreshold, PARAMS.threshold);
+    pane.addInput(PARAMS, "threshold", {
+        min: 0.0,
+        max: 1.0,
+    }).on("change", e => {
+        gl.uniform1f(uThreshold, e.value); 
+    });
+    
+    const uColor = gl.getUniformLocation(program, "u_edge_color");
+    gl.uniform3f(uColor, ...hex2rgb(PARAMS.color));
+    pane.addInput(PARAMS, "color").on("change", e => {
+        gl.uniform3f(uColor, ...hex2rgb(e.value));
+    });
+
+    // pane.on("change", (ev)=>{
+    //     console.log("Pane variable " + JSON.stringify(ev.presetKey) + " changed to " + JSON.stringify(ev.value))
+    // })
+
+    // ====== mouse internaction ======
+
+    const uCursorPos = gl.getUniformLocation(program, "u_cursor_position")
+
+    window.addEventListener("mousemove", e => {
+        cursorPos = getMousePos(e, canvas)
+        gl.uniform2f(uCursorPos, cursorPos.x, cursorPos.y);
     })
 
+    // ====== video texture ======
+
     video = getVideo()
+}
+
+function hex2rgb(hex) {
+    validator = /^#?[0-9A-F]{6}$/i // regex pattern for validating hex colors
+
+    var color = {
+        r: 0.0,
+        g: 0.0,
+        b: 0.0,
+    }
+
+    if (validator.test(hex) != true) {
+        console.warn("hex2rgb error: color \"" + hex + "\" failed validation")
+        hex = "#000000"
+        //return color
+    }
+
+    color.r = Number("0x" + hex.substr(-6, 2))/255
+    color.g = Number("0x" + hex.substr(-4, 2))/255
+    color.b = Number("0x" + hex.substr(-2, 2))/255
+
+    return [color.r, color.g, color.b]
+}
+
+function getMousePos(event, canvas) { // normalize cursor coordinates
+    return {
+        x: event.clientX / canvas.width,
+        y: 1-(event.clientY / canvas.height),
+    }
 }
 
 function getVideo() {

@@ -30,6 +30,21 @@
 
         uniform sampler2D uSampler;
 
+        uniform vec2 u_cursor_position;
+
+        uniform bool u_magnify;
+        uniform float u_zoom;
+        uniform float u_radius;
+
+        uniform bool u_wobble;
+        uniform float u_speed;
+
+        uniform float u_mix;
+
+        uniform bool u_edges;
+        uniform float u_threshold;
+        uniform vec3 u_edge_color;
+
         float random(in vec2 p) {
             return fract(sin(dot(p.xy, vec2(42.6852, 11.2225))) * 12366.4566);
         }
@@ -62,20 +77,52 @@
 
             return v;
         }
+
+        float sobel(in sampler2D sampler, in vec2 p, in float step) {
+            vec2 g = vec2(0., 0.);
+
+            float tl = length(texture2D(sampler, p + vec2(-step, step)));
+            float cl = length(texture2D(sampler, p + vec2(-step, 0.)));
+            float bl = length(texture2D(sampler, p + vec2(-step, -step)));
+            float tc = length(texture2D(sampler, p + vec2(0, step)));
+            //float cc = length(texture2D(sampler, p + vec2(-step, step)));
+            float bc = length(texture2D(sampler, p + vec2(0., -step)));
+            float tr = length(texture2D(sampler, p + vec2(step, step)));
+            float cr = length(texture2D(sampler, p + vec2(step, 0.)));
+            float br = length(texture2D(sampler, p + vec2(step, -step)));
+
+            g.x = tl + 2.*cl + bl - tr - 2.*cr - br;
+            g.y = -tl - 2.*tc - tr + bl + 2.*bc + br;
+
+            return sqrt(pow(g.x, 2.) + pow(g.y, 2.));
+        }
         
         void main() {
             vec2 pos = gl_FragCoord.xy / resolution;
             vec2 pos2 = pos;
 
-            float angle = noise(pos + time * 0.01) * 3.14159265359;
-            pos2 += 0.1 * vec2(cos(angle), sin(angle)); // wiggle
+            if (u_wobble) {
+                float angle = noise(pos + time * 0.01 * u_speed) * 3.14159265359;
+                pos2 += 0.1 * vec2(cos(angle), sin(angle)); // wiggle
+            }
+
+            if (u_magnify && u_radius > 0.) {
+                if (distance(pos, u_cursor_position) < u_radius) {
+                    pos2 *= (1.-u_radius*u_zoom) + distance(pos, u_cursor_position)*u_zoom;
+                }
+            }
 
             vec3 texture = texture2D(uSampler, pos2).rgb;
-            vec3 woah = vec3(noise(pos2 + time * 0.02), noise(pos2 + time * 0.01), noise(pos2 * sin(time * 0.1)));
+            vec3 woah = vec3(fbm(pos2 + time * 0.002), fbm(pos2 + time * 0.001), fbm(pos2 * sin(time * 0.01)));
 
-            vec3 color = normalize(texture + woah);
+            vec3 color = mix(texture, woah, u_mix);
 
-            //color = vec3(fbm(pos * 5.));
+            if (u_edges) {
+                float edges = sobel(uSampler, pos2, 0.001);
+                if (edges > u_threshold) {
+                    color = u_edge_color;
+                }
+            }
 
             gl_FragColor = vec4(color, 1.);
         }
