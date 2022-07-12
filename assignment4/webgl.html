@@ -33,58 +33,81 @@
     </script>
 
     <script id='simulationVertex' type='x-shader/x-vertex'>#version 300 es
+        #define PI_4 3.1415926538/4.
         precision mediump float;
+        
+        // input from our feedback TRANSFORM_FEEDBACK
         in vec4 a_pos;
         
-        uniform sampler2D uSampler;
-
         uniform vec2 resolution;
+        
+        // our chemical layer
+        uniform sampler2D uSampler;
+        
+        // the output of our feedback transform
+        // xy will store our position
+        // zw wiil store our heading / direction
         out vec4 o_vpos;
-
-        vec2 dirs[4] = vec2[4](
-            vec2(1.,0),
-            vec2(0,1.),
-            vec2(-1.,0),
-            vec2(0,-1.)
-        );
-
+        
+        // this function accepts a direction (header) for a
+        // agent and a rotation in radians, returning the
+        // new, rotated direction
+        vec2 rotate(vec2 dir, float angle) {
+            float  s = sin( angle );
+            float  c = cos( angle );
+            mat2   m = mat2( c, -s, s, c );
+            return m * dir;
+        }
+        
+        // pos - position of agent
+        // dir - heading of agent
+        // angle - direction to sense, in radians
+        // distance - distance to sense
+        float readSensor( vec2 pos, vec2 dir, float angle, vec2 distance ) {
+            vec2 newangle  = rotate( dir, angle  );
+            vec2 offset = newangle * distance;
+            return texture( uSampler, pos + offset ).r;
+        } 
+        
         void main() {
-            // our vertex positions are reported from -1 to 1.
-            // this converts that to 0 to 1, which is needed for
-            // our texture lookup
-            vec2 texCoord = (1. + a_pos.xy) * .5;
-            float pheromone = texture( uSampler, texCoord ).r;
+            // get normalied height / width of a single pixel 
+            vec2 pixel = 1. / resolution;
             
-            // initialize our vertex transform output
-            o_vpos = vec4( a_pos[0], a_pos[1], a_pos[2], pheromone);
+            // how far ahead should sensing occur? this is fun to play with
+            vec2 sensorDistance = pixel * 9.;
             
-            // how big is each square in the representation?
-            float gridSize = 8.;
+            // normalize our {-1,1} vertex coordinates to {0,1} for texture lookups
+            vec2 pos = (1. + a_pos.xy) / 2.;
             
-            // how far the vant should travel (but not the direction)
-            float dist = (2. / resolution.x) * gridSize;
+            // read sensor informatino at different angles
+            float left     = readSensor( pos, a_pos.zw, -PI_4, sensorDistance );
+            float forward  = readSensor( pos, a_pos.zw, 0.,    sensorDistance );
+            float right    = readSensor( pos, a_pos.zw, PI_4,  sensorDistance );
             
-            // if pheromones were found
-            if( pheromone > 0. ) {
-                o_vpos[2] += -1.; // turn 90 degrees counter-clockwise
-                o_vpos[3] = 1.;   // set pheromone flag
-            }else{
-                o_vpos[2] += 1.;  // turn clockwise
-                o_vpos[3] = 0.;   // unset pheromone flag
-            }
+            // initialize feedback transform output
+            o_vpos = a_pos;
             
-            // wrap direction lookup
-            if( o_vpos[2] < 0. ) o_vpos[2] = 3.;
+            // if most chemical is found to left... 
+            if( left > forward && left > right ) {
+                // rotate left and store in .zw
+                o_vpos.zw = rotate( o_vpos.zw, -PI_4 );
+            }else if( right > left && right > forward ) { // chemical is to the right
+                o_vpos.zw = rotate( o_vpos.zw, PI_4 );
+            }else if ( right == left ) { // randomly pick a direction
+                float rand = fract(sin(a_pos.x)*100000.0);
+                if( rand > .5 ) {
+                    o_vpos.zw = rotate( o_vpos.zw, PI_4 );
+                }else{
+                    o_vpos.zw = rotate( o_vpos.zw, -PI_4 );
+                }
+            } // else keep going the same direction, no change required
             
-            // get direction from our array
-            vec2 newdir = dirs[ int( mod( o_vpos[2], 4. ) ) ];
+            // move our agent in our new direction by one pixel
+            o_vpos.xy += o_vpos.zw * pixel;
             
-            gl_PointSize = gridSize;
+            gl_PointSize = 1.;
             
-            // set position for transform feedback
-            o_vpos.xy += newdir * dist; 
-            
-            // send current position to fragment shader
+            // position is for fragment shader rendering, don't need to include heading
             gl_Position = vec4( a_pos.x, a_pos.y, 0., 1. );
         }
     </script>

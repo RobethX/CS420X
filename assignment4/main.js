@@ -4,7 +4,7 @@ let gl, uTime, uRes, transformFeedback,
     textureBack, textureFront, framebuffer,
     copyProgram, simulationProgram, quad, pane,
     dimensions = { width:null, height:null },
-    antCount = 1
+    agentCount = 1000
 
 window.onload = function() {
     const canvas = document.getElementById( 'gl' )
@@ -148,20 +148,34 @@ function makeSimulationBuffer() {
     // create a buffer object to store vertices
     buffer1 = gl.createBuffer()
     buffer2 = gl.createBuffer()
-
-    // point buffer at graphic context's ARRAY_BUFFER
+  
+    // we’re using a vec4
+    const agentSize = 4
+    const buffer = new Float32Array( agentCount * agentSize )
+      
+      // set random positions / random headings
+    for (let i = 0; i < agentCount * agentSize; i+= agentSize ) {
+        buffer[i]   = -1 + Math.random() * 2
+        buffer[i+1] = -1 + Math.random() * 2
+        buffer[i+2] = Math.random()
+        buffer[i+3] = Math.random()
+    }
+  
     gl.bindBuffer( gl.ARRAY_BUFFER, buffer1 )
-    // we will be constantly updating this buffer data
+  
     gl.bufferData( 
         gl.ARRAY_BUFFER, 
-        new Float32Array([0,0,1,0]), 
+        buffer, 
         gl.DYNAMIC_COPY 
     )
-
+  
     gl.bindBuffer( gl.ARRAY_BUFFER, buffer2 )
-
-    gl.bufferData( gl.ARRAY_BUFFER, antCount*16, gl.DYNAMIC_COPY )
-}
+  
+    gl.bufferData( gl.ARRAY_BUFFER, agentCount*16, gl.DYNAMIC_COPY )
+  
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  }
 
 function makeSimulationUniforms() {
     uRes = gl.getUniformLocation( simulationProgram, 'resolution' )
@@ -218,13 +232,13 @@ function render() {
     // read from textureBack in our shaders
     gl.bindTexture( gl.TEXTURE_2D, textureBack )
 
-    // bind our array buffer of vants
+    // bind our array buffer of agents
     gl.bindBuffer( gl.ARRAY_BUFFER, buffer1 )
     gl.vertexAttribPointer( simulationPosition, 4, gl.FLOAT, false, 0,0 )
     gl.bindBufferBase( gl.TRANSFORM_FEEDBACK_BUFFER, 0, buffer2 )
     
     gl.beginTransformFeedback( gl.POINTS )  
-    gl.drawArrays( gl.POINTS, 0, antCount )
+    gl.drawArrays( gl.POINTS, 0, agentCount )
     gl.endTransformFeedback()
 
     /* COPY TEXTURE */
