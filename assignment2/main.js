@@ -81,8 +81,6 @@ window.onload = function() {
         threshold: 0.75,
         color: "#8070FF",
     };
-
-    // TODO: send tweakpane vars to gl buffer
     
     const pane = new Tweakpane.Pane();
 
