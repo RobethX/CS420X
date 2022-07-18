@@ -4,8 +4,9 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     textureBack, textureFront, framebuffer,
     copyProgram, simulationProgram, ddProgram, quad, pane,
     dimensions = { width:null, height:null },
-    agentCount = 500000,
-    params, fSensor, fAgent, fChemical
+    agentCount = 1000000,
+    params, fSensor, fAgent, fChemical,
+    cursorPos
 
 window.onload = function() {
     const canvas = document.getElementById( 'gl' )
@@ -30,16 +31,17 @@ function makeTweakPane() {
         agent: {
             size: 1,
             color: "#FFFFFF",
-            opacity: 0.25,
+            opacity: 0.1,
             speed: 1,
+            rotate: 1,
         },
         sensor: {
             distance: 9,
-            angle: Math.PI / 4,
+            sweep: 0.5,
         },
         chemical: {
             strength: 0.9,
-            color: "#0000FF",
+            color: "#FF0000",
         }
     };
 
@@ -203,15 +205,14 @@ function makeSimulationPane() {
         gl.uniform1f(uSensorDistance, e.value);
     });
 
-    const uSensorAngle = gl.getUniformLocation(simulationProgram, "u_sensor_angle");
-    gl.uniform1f(uSensorAngle, params.sensor.angle);
-    fSensor.addInput(params.sensor, "angle", {
+    const uSensorSweep = gl.getUniformLocation(simulationProgram, "u_sensor_sweep");
+    gl.uniform1f(uSensorSweep, params.sensor.sweep);
+    fSensor.addInput(params.sensor, "sweep", {
         min: 0,
-        max: Math.PI / 2,
-        step: Math.PI / 8,
+        max: 1,
     }).on("change", e => {
         gl.useProgram(simulationProgram);
-        gl.uniform1f(uSensorAngle, e.value);
+        gl.uniform1f(uSensorSweep, e.value);
     });
 
     const uAgentSize = gl.getUniformLocation(simulationProgram, "u_agent_size");
@@ -224,12 +225,14 @@ function makeSimulationPane() {
         gl.uniform1f(uAgentSize, e.value);
     });
 
+    /*
     const uAgentColor = gl.getUniformLocation(simulationProgram, "u_agent_color");
     gl.uniform3f(uAgentColor, ...hex2rgb(params.agent.color));
     fAgent.addInput(params.agent, "color", {type: "color",}).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform3f(uAgentColor, ...hex2rgb(e.value));
     });
+    */
 
     const uAgentOpacity = gl.getUniformLocation(simulationProgram, "u_agent_opacity");
     gl.uniform1f(uAgentOpacity, params.agent.opacity);
@@ -250,11 +253,32 @@ function makeSimulationPane() {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uAgentSpeed, e.value);
     });
+
+    const uAgentRotate = gl.getUniformLocation(simulationProgram, "u_agent_rotate");
+    gl.uniform1f(uAgentRotate, params.agent.rotate);
+    fAgent.addInput(params.agent, "rotate", {
+        min: 0,
+        max: 2,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uAgentRotate, e.value);
+    });
 }
 
 function makeSimulationUniforms() {
     uRes = gl.getUniformLocation( simulationProgram, 'resolution' )
     gl.uniform2f( uRes, gl.drawingBufferWidth, gl.drawingBufferHeight )
+
+    uTime = gl.getUniformLocation( simulationProgram, "time")
+    gl.uniform1f( uTime, 0 )
+
+    const uCursorPos = gl.getUniformLocation(simulationProgram, "u_cursor_position")
+    gl.uniform2f(uCursorPos, 0, 0);
+    window.addEventListener("mousemove", e => {
+        cursorPos = getMousePos(e, gl.drawingBufferWidth, gl.drawingBufferHeight)
+        gl.useProgram(simulationProgram)
+        gl.uniform2f(uCursorPos, cursorPos.x, cursorPos.y)
+    })
      
     // get position attribute location in shader
     simulationPosition = gl.getAttribLocation( simulationProgram, 'a_pos' )
@@ -305,12 +329,14 @@ function makeDecayDiffusePane() {
         gl.uniform1f(uChemicalStrength, e.value);
     });
 
+    /*
     const uChemicalColor = gl.getUniformLocation(ddProgram, "u_chemical_color");
     gl.uniform3f(uChemicalColor, ...hex2rgb(params.chemical.color));
     fChemical.addInput(params.chemical, "color", {type: "color",}).on("change", e => {
         gl.useProgram(ddProgram);
         gl.uniform3f(uChemicalColor, ...hex2rgb(e.value));
     });
+    */
 }
 
 function makeDecayDiffuseUniforms() {
@@ -349,6 +375,13 @@ function hex2rgb(hex) {
     return [color.r, color.g, color.b]
 }
 
+function getMousePos(event, width, height) { // normalize cursor coordinates
+    return {
+        x: (event.clientX / width),
+        y: 1-(event.clientY / height),
+    }
+}
+
 function makeTextures() {
     textureBack = gl.createTexture()
     gl.bindTexture( gl.TEXTURE_2D, textureBack )
@@ -378,11 +411,16 @@ function makeTextures() {
     framebuffer = gl.createFramebuffer()
 }
 
+let time = 0
 function render() {
     window.requestAnimationFrame( render )
 
     /* AGENT-BASED SIMULATION */
     gl.useProgram( simulationProgram )
+
+    // update time on CPU and GPU
+    time++
+    gl.uniform1f( uTime, time )
 
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer )
 
