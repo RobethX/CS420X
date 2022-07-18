@@ -44,6 +44,7 @@
         uniform float u_sensor_distance;
         uniform float u_sensor_angle;
         uniform float u_agent_size;
+        uniform float u_agent_speed;
         
         // our chemical layer
         uniform sampler2D uSampler;
@@ -84,9 +85,9 @@
             vec2 pos = (1. + a_pos.xy) / 2.;
             
             // read sensor informatino at different angles
-            float left     = readSensor( pos, a_pos.zw, -PI_4, sensorDistance );
+            float left     = readSensor( pos, a_pos.zw, -u_sensor_angle, sensorDistance );
             float forward  = readSensor( pos, a_pos.zw, 0.,    sensorDistance );
-            float right    = readSensor( pos, a_pos.zw, PI_4,  sensorDistance );
+            float right    = readSensor( pos, a_pos.zw, u_sensor_angle,  sensorDistance );
             
             // initialize feedback transform output
             o_vpos = a_pos;
@@ -94,20 +95,20 @@
             // if most chemical is found to left... 
             if( left > forward && left > right ) {
                 // rotate left and store in .zw
-                o_vpos.zw = rotate( o_vpos.zw, -PI_4 );
+                o_vpos.zw = rotate( o_vpos.zw, -u_sensor_angle );
             }else if( right > left && right > forward ) { // chemical is to the right
-                o_vpos.zw = rotate( o_vpos.zw, PI_4 );
+                o_vpos.zw = rotate( o_vpos.zw, u_sensor_angle );
             }else if ( right == left ) { // randomly pick a direction
                 float rand = fract(sin(a_pos.x)*100000.0);
                 if( rand > .5 ) {
-                    o_vpos.zw = rotate( o_vpos.zw, PI_4 );
+                    o_vpos.zw = rotate( o_vpos.zw, u_sensor_angle );
                 }else{
-                    o_vpos.zw = rotate( o_vpos.zw, -PI_4 );
+                    o_vpos.zw = rotate( o_vpos.zw, -u_sensor_angle );
                 }
             } // else keep going the same direction, no change required
             
             // move our agent in our new direction by one pixel
-            o_vpos.xy += o_vpos.zw * pixel;
+            o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
             
             gl_PointSize = u_agent_size; // 1.
             
@@ -137,7 +138,8 @@
         uniform sampler2D uSampler;
         uniform vec2 resolution;
 
-        //uniform float decay;
+        uniform float u_chemical_strength;
+        uniform vec3 u_chemical_color;
         
         float get(int x, int y) {
             return texture( uSampler, ( gl_FragCoord.xy + vec2(x, y) ) / resolution ).r;
@@ -157,7 +159,7 @@
             
             vec2 pos = gl_FragCoord.xy / resolution;
             vec4 tex = texture( uSampler, pos );
-            color = vec4( vec3(sum) * 0.9, .1 );
+            color = vec4( u_chemical_color * sum * u_chemical_strength, .25 );
         }
     </script>
     
