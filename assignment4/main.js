@@ -45,17 +45,20 @@ function makeTweakPane() {
         }
     };
 
-    pane = new Tweakpane.Pane();
+    pane = new Tweakpane.Pane({
+        title: "Simulation Parameters",
+        expanded: true,
+    });
+
+    fSensor = pane.addFolder({title: "Sensor"});
+    fAgent = pane.addFolder({title: "Agent"});
+    fChemical = pane.addFolder({title: "Chemical"});
 
     pane.addButton({
         title: "Reset Simulation",
     }).on("click", () => {
         makeSimulationBuffer();
     });
-
-    fSensor = pane.addFolder({title: "Sensor"});
-    fAgent = pane.addFolder({title: "Agent"});
-    fChemical = pane.addFolder({title: "Chemical"});
 }
 
 function makeCopyPhase() {

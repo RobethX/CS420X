@@ -82,7 +82,10 @@ window.onload = function() {
         color: "#8070FF",
     };
     
-    const pane = new Tweakpane.Pane();
+    const pane = new Tweakpane.Pane({
+        title: "Parameters",
+        expanded: true,
+    });
 
     const uMagnify = gl.getUniformLocation(program, "u_magnify");
     gl.uniform1f(uMagnify, PARAMS.magnify);
