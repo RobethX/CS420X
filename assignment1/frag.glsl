@@ -58,8 +58,8 @@ void main() {
     c.g = c.g * (1. - c.r * 0.5);
     
     vec3 hsv = rgb2hsv(c);
-    //hsv.x = hsv.x + uvN().x;
-    //c = hsv2rgb(hsv);
+    hsv.x = hsv.x + time/60.;
+    c = hsv2rgb(hsv);
     
     gl_FragColor = vec4(c, 1.0);
 }
