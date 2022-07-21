@@ -9,71 +9,43 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     cursorPos
 
 const PRESET_1 = { // default
-    test: 1,
-    sensor: {
-        distance: 9,
-        sweep: 0.5,
-    },
-    agent: {
-        size: 1,
-        opacity: 0.1,
-        speed: 1,
-        rotate: 1,
-    },
-    chemical: {
-        strength: 0.9,
-    }
+    distance: 9,
+    sweep: 0.5,
+    size: 1,
+    opacity: 0.1,
+    speed: 1,
+    rotate: 1,
+    strength: 0.9,
 };
 
 const PRESET_2 = { // smoke
-    test: 2,
-    sensor: {
-        distance: 5,
-        sweep: 0.5,
-    },
-    agent: {
-        size: 1.25,
-        opacity: 0.15,
-        speed: 5,
-        rotate: 0.35,
-    },
-    chemical: {
-        strength: 0.3,
-    }
+    distance: 5,
+    sweep: 0.5,
+    size: 1.25,
+    opacity: 0.15,
+    speed: 5,
+    rotate: 0.35,
+    strength: 0.3,
 };
 
 const PRESET_3 = { // coral
-    test: 3,
-    sensor: {
-        distance: 2,
-        sweep: 0,
-    },
-    agent: {
-        size: 1,
-        opacity: 0.1,
-        speed: 8.5,
-        rotate: 1.65,
-    },
-    chemical: {
-        strength: 0.5,
-    }
+    distance: 2,
+    sweep: 0,
+    size: 1,
+    opacity: 0.1,
+    speed: 8.5,
+    rotate: 1.65,
+    strength: 0.5,
 };
 
 const PRESET_4 = { // sand
-    test: 4,
-    sensor: {
-        distance: 15,
-        sweep: 0.85,
-    },
-    agent: {
-        size: 0.01,
-        opacity: 0.75,
-        speed: 3.25,
-        rotate:0.2,
-    },
-    chemical: {
-        strength: 0.01,
-    }
+    distance: 15,
+    sweep: 0.85,
+    size: 0.01,
+    opacity: 0.75,
+    speed: 3.25,
+    rotate:0.2,
+    strength: 0.01,
 };
 
 window.onload = function() {
@@ -161,8 +133,6 @@ function makeTweakPane() {
     }).on("click", () => {
         makeSimulationBuffer();
     });
-
-    pane.addInput(params, "test");
 }
 
 function makeCopyPhase() {
@@ -302,8 +272,8 @@ function makeSimulationBuffer() {
 
 function makeSimulationPane() {
     const uSensorDistance = gl.getUniformLocation(simulationProgram, "u_sensor_distance");
-    gl.uniform1f(uSensorDistance, params.sensor.distance);
-    fSensor.addInput(params.sensor, "distance", {
+    gl.uniform1f(uSensorDistance, params.distance);
+    fSensor.addInput(params, "distance", {
         min: 0,
         max: 15,
         step: 0.25,
@@ -313,8 +283,8 @@ function makeSimulationPane() {
     });
 
     const uSensorSweep = gl.getUniformLocation(simulationProgram, "u_sensor_sweep");
-    gl.uniform1f(uSensorSweep, params.sensor.sweep);
-    fSensor.addInput(params.sensor, "sweep", {
+    gl.uniform1f(uSensorSweep, params.sweep);
+    fSensor.addInput(params, "sweep", {
         min: 0,
         max: 1,
     }).on("change", e => {
@@ -323,8 +293,8 @@ function makeSimulationPane() {
     });
 
     const uAgentSize = gl.getUniformLocation(simulationProgram, "u_agent_size");
-    gl.uniform1f(uAgentSize, params.agent.size);
-    fAgent.addInput(params.agent, "size", {
+    gl.uniform1f(uAgentSize, params.size);
+    fAgent.addInput(params, "size", {
         min: 0.01,
         max: 2,
     }).on("change", e => {
@@ -334,16 +304,16 @@ function makeSimulationPane() {
 
     /*
     const uAgentColor = gl.getUniformLocation(simulationProgram, "u_agent_color");
-    gl.uniform3f(uAgentColor, ...hex2rgb(params.agent.color));
-    fAgent.addInput(params.agent, "color", {type: "color",}).on("change", e => {
+    gl.uniform3f(uAgentColor, ...hex2rgb(params.color));
+    fAgent.addInput(params, "color", {type: "color",}).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform3f(uAgentColor, ...hex2rgb(e.value));
     });
     */
 
     const uAgentOpacity = gl.getUniformLocation(simulationProgram, "u_agent_opacity");
-    gl.uniform1f(uAgentOpacity, params.agent.opacity);
-    fAgent.addInput(params.agent, "opacity", {
+    gl.uniform1f(uAgentOpacity, params.opacity);
+    fAgent.addInput(params, "opacity", {
         min: 0,
         max: 1,
     }).on("change", e => {
@@ -352,8 +322,8 @@ function makeSimulationPane() {
     });
 
     const uAgentSpeed = gl.getUniformLocation(simulationProgram, "u_agent_speed");
-    gl.uniform1f(uAgentSpeed, params.agent.speed);
-    fAgent.addInput(params.agent, "speed", {
+    gl.uniform1f(uAgentSpeed, params.speed);
+    fAgent.addInput(params, "speed", {
         min: 0,
         max: 10,
     }).on("change", e => {
@@ -362,8 +332,8 @@ function makeSimulationPane() {
     });
 
     const uAgentRotate = gl.getUniformLocation(simulationProgram, "u_agent_rotate");
-    gl.uniform1f(uAgentRotate, params.agent.rotate);
-    fAgent.addInput(params.agent, "rotate", {
+    gl.uniform1f(uAgentRotate, params.rotate);
+    fAgent.addInput(params, "rotate", {
         min: 0,
         max: 2,
     }).on("change", e => {
@@ -427,8 +397,8 @@ function makeDecayDiffuseShaders() {
 
 function makeDecayDiffusePane() {
     const uChemicalStrength = gl.getUniformLocation(ddProgram, "u_chemical_strength");
-    gl.uniform1f(uChemicalStrength, params.chemical.strength);
-    fChemical.addInput(params.chemical, "strength", {
+    gl.uniform1f(uChemicalStrength, params.strength);
+    fChemical.addInput(params, "strength", {
         min: 0.01,
         max: 1,
     }).on("change", e => {
@@ -438,8 +408,8 @@ function makeDecayDiffusePane() {
 
     /*
     const uChemicalColor = gl.getUniformLocation(ddProgram, "u_chemical_color");
-    gl.uniform3f(uChemicalColor, ...hex2rgb(params.chemical.color));
-    fChemical.addInput(params.chemical, "color", {type: "color",}).on("change", e => {
+    gl.uniform3f(uChemicalColor, ...hex2rgb(params.color));
+    fChemical.addInput(params, "color", {type: "color",}).on("change", e => {
         gl.useProgram(ddProgram);
         gl.uniform3f(uChemicalColor, ...hex2rgb(e.value));
     });
