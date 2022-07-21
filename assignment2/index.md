@@ -1,6 +1,6 @@
 ### Assignment 2: WebGL Intro
 
-The source code is available [here](https://github.com/RobethX/CS420X/blob/main/assignment2/webgl.html).
+The source code is available [here](https://github.com/RobethX/CS420X/blob/main/assignment2/).
 
 ---
 
