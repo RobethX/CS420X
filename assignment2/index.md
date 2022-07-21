@@ -4,9 +4,13 @@ The source code is available [here](https://github.com/RobethX/CS420X/blob/main/
 
 ---
 
+*NOTE: I experienced memory leaks while using Firefox. I recommend using Chrome to avoid this issue.*
+
 <iframe width="100%" style="aspect-ratio: 1/1" src="webgl.html" title="WebGL" frameborder="0" scrolling="no"></iframe>
 
 Click [here](webgl.html) for a fullscreen view.
+
+
 
 ---
 
