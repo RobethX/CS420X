@@ -29,7 +29,7 @@ const PRESET_2 = { // smoke
 };
 
 const PRESET_3 = { // coral
-    distance: 2,
+    distance: 3,
     sweep: 0,
     size: 1,
     opacity: 0.1,
@@ -83,10 +83,8 @@ function makeTweakPane() {
         label: "preset 1",
         title: "Default"
     }).on("click", () => {
-        //params = PRESET_1;
         console.info("Loading preset 1")
         pane.importPreset(PRESET_1);
-        pane.refresh();
     });
 
     fPresets.addButton({
@@ -94,9 +92,7 @@ function makeTweakPane() {
         title: "Smoke"
     }).on("click", () => {
         console.info("Loading preset 2")
-        //params = PRESET_2;
         pane.importPreset(PRESET_2);
-        pane.refresh();
     });
 
     fPresets.addButton({
@@ -104,9 +100,7 @@ function makeTweakPane() {
         title: "Coral"
     }).on("click", () => {
         console.info("Loading preset 3")
-        //params = PRESET_3;
         pane.importPreset(PRESET_3);
-        pane.refresh();
     });
 
     fPresets.addButton({
@@ -114,9 +108,7 @@ function makeTweakPane() {
         title: "Sand"
     }).on("click", () => {
         console.info("Loading preset 4")
-        //params = PRESET_4;
         pane.importPreset(PRESET_4);
-        pane.refresh();
     });
 
     fPresets.addSeparator();
