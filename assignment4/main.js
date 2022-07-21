@@ -8,6 +8,74 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     params, fSensor, fAgent, fChemical,
     cursorPos
 
+const PRESET_1 = { // default
+    test: 1,
+    sensor: {
+        distance: 9,
+        sweep: 0.5,
+    },
+    agent: {
+        size: 1,
+        opacity: 0.1,
+        speed: 1,
+        rotate: 1,
+    },
+    chemical: {
+        strength: 0.9,
+    }
+};
+
+const PRESET_2 = { // smoke
+    test: 2,
+    sensor: {
+        distance: 5,
+        sweep: 0.5,
+    },
+    agent: {
+        size: 1.25,
+        opacity: 0.15,
+        speed: 5,
+        rotate: 0.35,
+    },
+    chemical: {
+        strength: 0.3,
+    }
+};
+
+const PRESET_3 = { // coral
+    test: 3,
+    sensor: {
+        distance: 2,
+        sweep: 0,
+    },
+    agent: {
+        size: 1,
+        opacity: 0.1,
+        speed: 8.5,
+        rotate: 1.65,
+    },
+    chemical: {
+        strength: 0.5,
+    }
+};
+
+const PRESET_4 = { // sand
+    test: 4,
+    sensor: {
+        distance: 15,
+        sweep: 0.85,
+    },
+    agent: {
+        size: 0.01,
+        opacity: 0.75,
+        speed: 3.25,
+        rotate:0.2,
+    },
+    chemical: {
+        strength: 0.01,
+    }
+};
+
 window.onload = function() {
     const canvas = document.getElementById( 'gl' )
     gl = canvas.getContext( 'webgl2' )
@@ -27,38 +95,74 @@ window.onload = function() {
 }
 
 function makeTweakPane() {
-    params = {
-        agent: {
-            size: 1,
-            color: "#FFFFFF",
-            opacity: 0.1,
-            speed: 1,
-            rotate: 1,
-        },
-        sensor: {
-            distance: 9,
-            sweep: 0.5,
-        },
-        chemical: {
-            strength: 0.9,
-            color: "#FF0000",
-        }
-    };
+    params = Object.assign({}, PRESET_1);
 
     pane = new Tweakpane.Pane({
         title: "Simulation Parameters",
         expanded: true,
     });
 
+    fPresets = pane.addFolder(({title: "Presets"}));
     fSensor = pane.addFolder({title: "Sensor"});
     fAgent = pane.addFolder({title: "Agent"});
     fChemical = pane.addFolder({title: "Chemical"});
+
+    fPresets.addButton({
+        label: "preset 1",
+        title: "Default"
+    }).on("click", () => {
+        //params = PRESET_1;
+        console.info("Loading preset 1")
+        pane.importPreset(PRESET_1);
+        pane.refresh();
+    });
+
+    fPresets.addButton({
+        label: "preset 2",
+        title: "Smoke"
+    }).on("click", () => {
+        console.info("Loading preset 2")
+        //params = PRESET_2;
+        pane.importPreset(PRESET_2);
+        pane.refresh();
+    });
+
+    fPresets.addButton({
+        label: "preset 3",
+        title: "Coral"
+    }).on("click", () => {
+        console.info("Loading preset 3")
+        //params = PRESET_3;
+        pane.importPreset(PRESET_3);
+        pane.refresh();
+    });
+
+    fPresets.addButton({
+        label: "preset 4",
+        title: "Sand"
+    }).on("click", () => {
+        console.info("Loading preset 4")
+        //params = PRESET_4;
+        pane.importPreset(PRESET_4);
+        pane.refresh();
+    });
+
+    fPresets.addSeparator();
+
+    fPresets.addButton({
+        title: "Export Preset to Console"
+    }).on("click", () => {
+        let preset = pane.exportPreset();
+        console.log(preset);
+    });
 
     pane.addButton({
         title: "Reset Simulation",
     }).on("click", () => {
         makeSimulationBuffer();
     });
+
+    pane.addInput(params, "test");
 }
 
 function makeCopyPhase() {
