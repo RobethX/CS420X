@@ -10,4 +10,14 @@ Click [here](webgl.html) for a fullscreen view.
 
 ---
 
-Writeup here
+Preset 1: Default
+: This preset 
+
+Preset 2: Smoke
+: Example
+
+Preset 3: Coral
+: Are Definition Lists a think on GitHub's Markdown flavor?
+
+Preset 4: Sand
+: Hello, world!
