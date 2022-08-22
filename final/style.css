@@ -1,14 +1,19 @@
+body {
+    background-color: #9999FF;
+    overflow: hidden;
+}
+
 .joystick-container {
     position: absolute;
     padding: 0;
     margin: 2vw;
-    /* background-color: #000; */
     background-color: #AAA;
     opacity: 0.5;
     filter: alpha(opacity=10);
     z-index: 1; 
     /* border: 1px solid #000; */
     border-radius: 50%;
+    overflow: visible;
 }
 
 .joystick-container:disabled {

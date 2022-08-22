@@ -5,7 +5,8 @@ function buttonPressed(b) {
         return b.pressed;
     }
     return b == 1.0;
-  }
+}
+
 function controllerLoop() {
     if (!gamepads || gamepads.length < 1) { // Return if no gamepads connected
         return
