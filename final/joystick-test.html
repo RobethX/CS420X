@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+        <style>body{ margin:0 }</style>
+    </head>
+
+    <body>
+        <canvas id="gl"></canvas>
+
+        <p id="debug"></p>
+    </body>
+    
+    <script src="https://cdn.jsdelivr.net/npm/regl@2/dist/regl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweakpane@3/dist/tweakpane.min.js"></script>
+
+    <script src="js/input/input_handler.js"></script>
+    <script src="js/input/gamepad.js"></script>
+    <script src="js/input/joystick.js"></script>
+
+    <script>
+        var joystick1 = new Joystick(0);
+        var joystick2 = new Joystick(1, {pos: "bottom-right"});
+        //joystick.init();
+    </script>
+
+</html>

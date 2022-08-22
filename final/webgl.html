@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang='en'>
+<html lang="en">
     <head>
+        <link rel="stylesheet" href="style.css">
         <style>body{ margin:0 }</style>
     </head>
 
     <body>
-        <canvas id='gl'></canvas>
+        <canvas id="gl"></canvas>
     </body>
 
     <!-- vertex shader, as simple as possible -->
-    <script id='vertex' type='x-shader/x-vertex'>
+    <script id="vertex" type="x-shader/x-vertex">
         attribute vec2 a_position;
 
         void main() {
@@ -18,7 +19,7 @@
     </script>
 
     <!-- fragment shader -->
-    <script id='fragment' type='x-shader/x-fragment'>
+    <script id="fragment" type="x-shader/x-fragment">
         #ifdef GL_ES
         precision mediump float;
         #endif
@@ -40,7 +41,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tweakpane@3/dist/tweakpane.min.js"></script>
 
     <script src="js/pane.js"></script>
-    <script src="js/controller.js"></script>
+    <script src="js/input/input_handler.js"></script>
+    <script src="js/input/gamepad.js"></script>
     <script src="js/main.js"></script>
 
 </html>
