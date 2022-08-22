@@ -11,11 +11,11 @@ class JoystickController extends InputController {
         if (joystick == this.left_joystick) {
             this.left_x = x;
             this.left_y = y;
-            console.log(`left joystick: ${x}, ${y}`);
+            //console.log(`left joystick: ${x}, ${y}`);
         } else if (joystick == this.right_joystick) {
             this.right_x = x;
             this.right_y = y;
-            console.log(`right joystick: ${x}, ${y}`);
+            //console.log(`right joystick: ${x}, ${y}`);
         }
     }
 }
@@ -31,6 +31,7 @@ class Joystick {
         this.pos = params.pos || "bottom-left";
         this.callback = params.callback || function() {};
 
+        this.hidden = false;
         this.active = false;
         this.x = 0.0;
         this.y = 0.0;
@@ -116,5 +117,16 @@ class Joystick {
 
         this.callback(this, this.x, this.y);
         return {x: this.x, y: this.y};
+    }
+
+    toggle() { // TODO: only show on touch devices
+        this.hidden = !this.hidden;
+        this.div.classList.toggle("hidden");
+        
+        // if (this.hidden) {
+        //     this.div.classList.add("hidden");
+        // } else {
+        //     this.div.classList.remove("hidden");
+        // }
     }
 }

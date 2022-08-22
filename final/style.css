@@ -1,5 +1,4 @@
 body {
-    background-color: #9999FF;
     overflow: hidden;
 }
 
@@ -8,6 +7,7 @@ body {
     padding: 0;
     margin: 2vw;
     background-color: #AAA;
+    transition: opacity 0.5s ease-in-out;
     opacity: 0.5;
     filter: alpha(opacity=10);
     z-index: 1; 
@@ -16,8 +16,7 @@ body {
     overflow: visible;
 }
 
-.joystick-container:disabled {
-    transition: opacity 0.5s ease-in-out;
+.joystick-container.hidden {
     opacity: 0;
     filter: alpha(opacity=0);
 }
