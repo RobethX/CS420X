@@ -1,6 +1,22 @@
 class JoystickController extends InputController {
     constructor() {
         super();
+
+        this.left_joystick = new Joystick(0, {pos: "bottom-left", callback: this.onJoystickMove.bind(this)});
+        this.right_joystick = new Joystick(1, {pos: "bottom-right", callback: this.onJoystickMove.bind(this)});
+    }
+
+    onJoystickMove(joystick, x, y) {
+        //console.log(`Joystick ${joystick.id} moved to ${x}, ${y}`);
+        if (joystick == this.left_joystick) {
+            this.left_x = x;
+            this.left_y = y;
+            console.log(`left joystick: ${x}, ${y}`);
+        } else if (joystick == this.right_joystick) {
+            this.right_x = x;
+            this.right_y = y;
+            console.log(`right joystick: ${x}, ${y}`);
+        }
     }
 }
 
@@ -13,6 +29,7 @@ class Joystick {
         this.mouse_support = params.mouse_support || true;
         this.touch_support = params.touch_support || true;
         this.pos = params.pos || "bottom-left";
+        this.callback = params.callback || function() {};
 
         this.active = false;
         this.x = 0.0;
@@ -56,14 +73,14 @@ class Joystick {
 
     onStart(e) {
         this.active = true;
-        console.debug(e)
         e.preventDefault();
     }
 
     onEnd(e) {
         this.active = false;
-        console.debug(e)
         this.control.style.transform = "translate(0, 0)";
+        this.x = 0;
+        this.y = 0;
     }
 
     onTouchMove(e) {
@@ -96,5 +113,8 @@ class Joystick {
         this.y = -cappedY / this.radius_outer;
 
         document.getElementById("debug").innerHTML = "x: " + this.x + " y: " + this.y;
+
+        this.callback(this, this.x, this.y);
+        return {x: this.x, y: this.y};
     }
 }
