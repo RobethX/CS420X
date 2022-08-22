@@ -15,6 +15,8 @@ class Joystick {
         this.pos = params.pos || "bottom-left";
 
         this.active = false;
+        this.x = 0.0;
+        this.y = 0.0;
 
         this.init();
     }
@@ -71,24 +73,28 @@ class Joystick {
             let deltaX = touch.clientX - e.currentTarget.offsetLeft - this.radius_outer;
             let deltaY = touch.clientY - e.currentTarget.offsetTop - this.radius_outer;
 
-            let cappedX = Math.min(Math.max(deltaX, -this.radius_outer), this.radius_outer);
-            let cappedY = Math.min(Math.max(deltaY, -this.radius_outer), this.radius_outer);
-
-            this.control.style.transform = "translate(" + cappedX + "px, " + cappedY + "px)";
+            this.move(deltaX, deltaY);
         }
     }
 
     onMouseMove(e) {
-        let deltaX = e.clientX - e.currentTarget.offsetLeft - this.radius_outer;
-        let deltaY = e.clientY - e.currentTarget.offsetTop - this.radius_outer;
+        if (this.active) {
+            let deltaX = e.clientX - e.currentTarget.offsetLeft - this.radius_outer;
+            let deltaY = e.clientY - e.currentTarget.offsetTop - this.radius_outer;
 
+            this.move(deltaX, deltaY);
+        }
+    }
+
+    move(deltaX, deltaY) {
         let cappedX = Math.min(Math.max(deltaX, -this.radius_outer), this.radius_outer);
         let cappedY = Math.min(Math.max(deltaY, -this.radius_outer), this.radius_outer);
 
-        if (this.active) {
-            this.control.style.transform = "translate(" + cappedX + "px, " + cappedY + "px)";
-        }
+        this.control.style.transform = "translate(" + cappedX + "px, " + cappedY + "px)";
 
-        document.getElementById("debug").innerHTML = "x: " + deltaX + " y: " + deltaY;
+        this.x = cappedX / this.radius_outer;
+        this.y = -cappedY / this.radius_outer;
+
+        document.getElementById("debug").innerHTML = "x: " + this.x + " y: " + this.y;
     }
 }
