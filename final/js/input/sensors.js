@@ -12,14 +12,16 @@ function startAccelerometer() {
         });
 
         accelerometer.addEventListener("error", (e) => {
-            if (e.error.name === "NotAllowedError") {
+            if (e.name === "NotAllowedError") {
                 navigator.permissions.query("accelerometer").then(result => {
                     if (result.state === "denied") {
                         console.log("Accelerometer access denied.");
                     }
                 });
-            } else if (e.error.name === "NotReadableError") {
+            } else if (e.name === "NotReadableError") {
                 console.log("Accelerometer is not available.");
+            } else {
+                console.error(e);
             }
         });
 
@@ -27,7 +29,7 @@ function startAccelerometer() {
     } catch (e) {
         if (e.name === "SecurityError") {
             console.log("Accelerometer construction was blocked by a feature policy.");
-        } else if (error.name === "ReferenceError") {
+        } else if (e.name === "ReferenceError") {
             console.log("Accelerometer is not supported by the User Agent.");
         } else {
             console.error(e);
@@ -44,14 +46,16 @@ function startGyroscope() {
         });
 
         gyroscope.addEventListener("error", (e) => {
-            if (e.error.name === "NotAllowedError") {
+            if (e.name === "NotAllowedError") {
                 navigator.permissions.query("gyroscope").then(result => {
                     if (result.state === "denied") {
                         console.log("Gyroscope access denied.");
                     }
                 });
-            } else if (e.error.name === "NotReadableError") {
+            } else if (e.name === "NotReadableError") {
                 console.log("Gyroscope is not available.");
+            } else {
+                console.error(e);
             }
         });
 
@@ -59,7 +63,7 @@ function startGyroscope() {
     } catch (e) {
         if (e.name === "SecurityError") {
             console.log("Gyroscope construction was blocked by a feature policy.");
-        } else if (error.name === "ReferenceError") {
+        } else if (e.name === "ReferenceError") {
             console.log("Gyroscope is not supported by the User Agent.");
         } else {
             console.error(e);
@@ -76,14 +80,16 @@ function startMagnetometer() {
         });
 
         magnetometer.addEventListener("error", (e) => {
-            if (e.error.name === "NotAllowedError") {
+            if (e.name === "NotAllowedError") {
                 navigator.permissions.query("magnetometer").then(result => {
                     if (result.state === "denied") {
                         console.log("Magnetometer access denied.");
                     }
                 });
-            } else if (e.error.name === "NotReadableError") {
+            } else if (e.name === "NotReadableError") {
                 console.log("Magnetometer is not available.");
+            } else {
+                console.error(e);
             }
         });
 
@@ -91,7 +97,7 @@ function startMagnetometer() {
     } catch (e) {
         if (e.name === "SecurityError") {
             console.log("Magnetometer construction was blocked by a feature policy.");
-        } else if (error.name === "ReferenceError") {
+        } else if (e.name === "ReferenceError") {
             console.log("Magnetometer is not supported by the User Agent.");
         } else {
             console.error(e);
@@ -104,11 +110,11 @@ function startOrientationSensor() {
         sensor = new AbsoluteOrientationSensor();
 
         sensor.addEventListener("reading", () => {
-            console.log(sensor.alpha, sensor.beta, sensor.gamma);
+            console.log(sensor.quaternion);
         })
 
         accelerometer.addEventListener("error", (e) => {
-            if (e.error.name === "NotAllowedError") {
+            if (e.name === "NotAllowedError") {
                 Promise.all([
                     navigator.permissions.query("accelerometer"),
                     navigator.permissions.query("gyroscope"),
@@ -118,8 +124,10 @@ function startOrientationSensor() {
                         console.log("Orientation access denied.");
                     }
                 });
-            } else if (e.error.name === "NotReadableError") {
+            } else if (e.name === "NotReadableError") {
                 console.log("Orientation is not available.");
+            } else {
+                console.error(e);
             }
         });
         
@@ -127,7 +135,7 @@ function startOrientationSensor() {
     } catch (e) {
         if (e.name === "SecurityError") {
             console.log("Absolute Orientation Sensor construction was blocked by a feature policy.");
-        } else if (error.name === "ReferenceError") {
+        } else if (e.name === "ReferenceError") {
             console.log("Absolute Orientation Sensor is not supported by the User Agent.");
         } else {
             console.error(e);
