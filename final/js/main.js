@@ -6,7 +6,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     dimensions = { width:null, height:null },
     agentCount = 1000000,
     params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
-    cursorPos, joystick, inputPos
+    cursorPos, joystick, inputPos, uJoystickPos
 
 const PRESET_1 = { // default
     distance: 9,
@@ -81,7 +81,7 @@ window.onload = function() {
 }
 
 function makeTweakPane() {
-    params = Object.assign(INPUT_PARAMS, PRESET_1);
+    params = Object.assign(INPUT_PARAMS, PRESET_3); // use smoke by default
 
     pane = new Tweakpane.Pane({
         title: "Parameters",
@@ -455,10 +455,17 @@ function makeInteractionPhase() {
 }
 
 function makeInputController() {
+    gl.useProgram(simulationProgram)
+    uJoystickPos = gl.getUniformLocation(simulationProgram, "u_joystick_position");
+    gl.uniform2f(uJoystickPos, 0, 0);
+
     joystick = new Joystick(0, {callback: function(joystick, x, y) {
         params.joystick_x = x;
-        params.joystick_y = y;
-        inputPos = {x: x, y: y};
+        params.joystick_y = -y;
+        inputPos = {x: x, y: -y};
+
+        gl.useProgram(simulationProgram)
+        gl.uniform2f(uJoystickPos, inputPos.x, inputPos.y)
     }});
 }
 
@@ -555,10 +562,13 @@ function inputLoop() {
     let gp = controllerLoop();
     if (gp) {
         params.gamepad_x = gp.axes[0] || params.gamepad_x;
-        params.gamepad_y = gp.axes[1] || params.gamepad_y;
+        params.gamepad_y = -gp.axes[1] || params.gamepad_y;
         if (gp.axes.length >= 2) {
-            inputPos = {x: gp.axes[0], y: gp.axes[1]} // TODO: prevent this from overwriting the joystick input
+            inputPos = {x: gp.axes[0], y: -gp.axes[1]} // TODO: prevent this from overwriting the joystick input
         }
+
+        gl.useProgram(simulationProgram)
+        gl.uniform2f(uJoystickPos, inputPos.x, inputPos.y)
     }
 }
 

@@ -52,6 +52,7 @@
         uniform float u_agent_rotate;
 
         uniform vec2 u_cursor_position;
+        uniform vec2 u_joystick_position;
         
         // our chemical layer
         uniform sampler2D uSampler;
@@ -96,7 +97,7 @@
             
             // read sensor information at different angles
             float left     = readSensor( pos, a_pos.zw, -PI_4 + sweep_angle, sensorDistance );
-            float forward  = readSensor( pos, a_pos.zw, 0., sensorDistance );
+            float forward  = readSensor( pos, a_pos.zw, sweep_angle, sensorDistance );
             float right    = readSensor( pos, a_pos.zw, PI_4 - sweep_angle,  sensorDistance );
             
             // initialize feedback transform output
@@ -126,6 +127,10 @@
             
             // move our agent in our new direction by one pixel
             o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
+
+            // joystick :)
+            float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
+            o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
             
             gl_PointSize = u_agent_size; // 1.
             
