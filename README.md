@@ -2,4 +2,4 @@
 - [Assignment 2: WebGL Intro](https://robch.io/CS420X/assignment2/)
 - Assignment 3: Reaction Diffusion
 - [Assignment 4: Physarum](https://robch.io/CS420X/assignment4/)
-- Final Project
+- [Final Project](https://robch.io/CS420X/final/)

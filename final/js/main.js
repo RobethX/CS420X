@@ -4,15 +4,15 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     textureBack, textureFront, framebuffer,
     copyProgram, simulationProgram, ddProgram, quad, pane,
     dimensions = { width:null, height:null },
-    agentCount = 1000000,
+    agentCount = 10000,
     params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
 const PRESET_1 = { // default
     distance: 9,
     sweep: 0.5,
-    size: 1,
-    opacity: 0.1,
+    size: 1.5,
+    opacity: 1,
     speed: 1,
     rotate: 1,
     strength: 0.9,
@@ -83,7 +83,7 @@ window.onload = function() {
 }
 
 function makeTweakPane() {
-    params = Object.assign(INPUT_PARAMS, PRESET_2); // use smoke by default
+    params = Object.assign(INPUT_PARAMS, PRESET_1);
 
     pane = new Tweakpane.Pane({
         title: "Parameters",
@@ -314,8 +314,8 @@ function makeSimulationPane() {
     const uAgentSize = gl.getUniformLocation(simulationProgram, "u_agent_size");
     gl.uniform1f(uAgentSize, params.size);
     fAgent.addInput(params, "size", {
-        min: 0.01,
-        max: 2,
+        min: 0.1,
+        max: 3,
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uAgentSize, e.value);
@@ -375,6 +375,9 @@ function makeSimulationUniforms() {
         gl.useProgram(simulationProgram)
         gl.uniform2f(uCursorPos, cursorPos.x, cursorPos.y)
     })
+
+    const uAgentCount = gl.getUniformLocation(simulationProgram, "u_agent_count")
+    gl.uniform1i(uAgentCount, agentCount)
      
     // get position attribute location in shader
     simulationPosition = gl.getAttribLocation( simulationProgram, 'a_pos' )

@@ -50,6 +50,7 @@
         uniform float u_agent_size;
         uniform float u_agent_speed;
         uniform float u_agent_rotate;
+        uniform int u_agent_count;
 
         uniform vec2 u_cursor_position;
         uniform vec2 u_joystick_position;
@@ -80,8 +81,13 @@
         float readSensor( vec2 pos, vec2 dir, float angle, vec2 distance ) {
             vec2 newangle  = rotate( dir, angle  );
             vec2 offset = newangle * distance;
+
+            if ((pos + offset).x < 0. || (pos + offset).x > resolution.x || (pos + offset).y < 0. || (pos + offset).y > resolution.y) {
+                return 0.0;
+            }
+
             return texture( uSampler, pos + offset ).r;
-        } 
+        }
         
         void main() {
             // get normalied height / width of a single pixel 
@@ -103,6 +109,37 @@
             
             // initialize feedback transform output
             o_vpos = a_pos;
+
+            for (int i = 0; i < int(u_agent_count); i++) {
+                if (i == gl_InstanceID) {
+                    continue;
+                }
+
+                // get the position of the other agent
+                //vec2 other = (1. + gl_in[i].gl_Position.xy) / 2.;
+                //float dist = distance( o_vpos.xy, other );
+                //vec2 other = uSampler.sample(i).xy;
+                vec4 other = texelFetch(uSampler, ivec2(i,0), 0);
+                float dist = distance( o_vpos.xy, other.xy );
+                vec2 diff = other.xy - o_vpos.xy;
+                diff = normalize(diff);
+
+                float u_seperation_distance = 2.0;
+                float u_cohesion_distance = 0.5;
+                float u_alignment_distance = 0.5;
+
+                if (dist < u_seperation_distance * pixel.x) { // seperation
+                    o_vpos.xy += diff * u_agent_speed;
+                }
+
+                if (dist < u_cohesion_distance * pixel.x) { // cohesion
+                    o_vpos.xy += diff * u_agent_speed;
+                }
+
+                if (dist < u_alignment_distance * pixel.x) { // alignment
+                    o_vpos.zw += other.zw;
+                }
+            }
 
             // angle to turn
             float turn_angle = PI_4 * u_agent_rotate;
