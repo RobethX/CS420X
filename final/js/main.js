@@ -63,9 +63,11 @@ var INPUT_PARAMS = {
 window.onload = function() {
     const canvas = document.getElementById( 'gl' )
     gl = canvas.getContext( 'webgl2' )
-    const dim = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight
-    canvas.width  = dimensions.width  = dim
-    canvas.height = dimensions.height = dim 
+    // const dim = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight
+    // canvas.width  = dimensions.width  = dim
+    // canvas.height = dimensions.height = dim
+    canvas.width = dimensions.width = window.innerWidth
+    canvas.height = dimensions.height = window.innerHeight
 
     // define drawing area of canvas. bottom corner, width / height
     gl.viewport( 0,0,gl.drawingBufferWidth, gl.drawingBufferHeight )
@@ -471,6 +473,11 @@ function makeInputController() {
 
     uRightStickPos = gl.getUniformLocation(simulationProgram, "u_right_stick_position");
     gl.uniform2f(uRightStickPos, 0, 0);
+
+    // startAccelerometer();
+    // startGyroscope();
+    // startMagnetometer();
+    startOrientationSensor();
 }
 
 function makeJoystickPane() {
