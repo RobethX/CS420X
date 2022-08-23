@@ -58,6 +58,7 @@ var INPUT_PARAMS = {
     accelerometer: false,
     gyroscope: false,
     magnetometer: false,
+    debug: "",
 }
 
 window.onload = function() {
@@ -475,9 +476,9 @@ function makeInputController() {
     gl.uniform2f(uRightStickPos, 0, 0);
 
     // startAccelerometer();
-    // startGyroscope();
+    startGyroscope();
     // startMagnetometer();
-    startOrientationSensor();
+    //startOrientationSensor();
 }
 
 function makeJoystickPane() {
@@ -536,6 +537,8 @@ function makeOrientationPane() {
     fOrientation.addInput(params, "magnetometer").on("change", () => {
         console.info("magnetometer: " + params.magnetometer)
     });
+
+    fOrientation.addMonitor(params, "debug");
 }
 
 function inputLoop() {
@@ -553,6 +556,14 @@ function inputLoop() {
                 gl.uniform2f(uRightStickPos, gp.axes[2], -gp.axes[3]);
             }
         }
+    }
+
+    if (gyroscope) {
+        let tmp_x = gyroscope.x || 0;
+        let tmp_y = gyroscope.y || 0;
+        let tmp_z = gyroscope.z || 0;
+
+        params.debug = tmp_x + " " + tmp_y + " " + tmp_z;
     }
 }
 
