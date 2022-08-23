@@ -5,8 +5,8 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     copyProgram, simulationProgram, ddProgram, quad, pane,
     dimensions = { width:null, height:null },
     agentCount = 1000000,
-    params, fSensor, fAgent, fChemical,
-    cursorPos
+    params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad,
+    cursorPos, joystick, inputPos
 
 const PRESET_1 = { // default
     distance: 9,
@@ -44,9 +44,19 @@ const PRESET_4 = { // sand
     size: 0.01,
     opacity: 0.75,
     speed: 3.25,
-    rotate:0.2,
+    rotate: 0.2,
     strength: 0.01,
 };
+
+var INPUT_PARAMS = {
+    joystick: true,
+    joystick_x: 0,
+    joystick_y: 0,
+    gamepads: gamepads.toString(),
+    gamepad: "",
+    gamepad_x: 0,
+    gamepad_y: 0
+}
 
 window.onload = function() {
     const canvas = document.getElementById( 'gl' )
@@ -62,22 +72,33 @@ window.onload = function() {
     makeCopyPhase()
     makeSimulationPhase()
     makeDecayDiffusePhase()
+    makeInteractionPhase()
     makeTextures()
     render()
 }
 
 function makeTweakPane() {
-    params = Object.assign({}, PRESET_1);
+    params = Object.assign(INPUT_PARAMS, PRESET_1);
 
     pane = new Tweakpane.Pane({
-        title: "Simulation Parameters",
+        title: "Parameters",
         expanded: true,
     });
 
-    fPresets = pane.addFolder(({title: "Presets"}));
-    fSensor = pane.addFolder({title: "Sensor"});
-    fAgent = pane.addFolder({title: "Agent"});
-    fChemical = pane.addFolder({title: "Chemical"});
+    tab = pane.addTab({
+        pages: [
+            {title: "Input"},
+            {title: "Simulation"},
+        ]
+    });
+
+    fJoystick = tab.pages[0].addFolder({title: "Virtual Joystick"});
+    fGamepad = tab.pages[0].addFolder({title: "Gamepad"});
+
+    fPresets = tab.pages[1].addFolder(({title: "Presets"}));
+    fSensor = tab.pages[1].addFolder({title: "Sensor"});
+    fAgent = tab.pages[1].addFolder({title: "Agent"});
+    fChemical = tab.pages[1].addFolder({title: "Chemical"});
 
     fPresets.addButton({
         label: "preset 1",
@@ -422,6 +443,106 @@ function makeDecayDiffuseUniforms() {
     gl.vertexAttribPointer( copyPosition, 2, gl.FLOAT, false, 0,0 )
 }
 
+function makeInteractionPhase() {
+    makeInputController();
+    makeJoystickPane();
+    makeGamepadPane();
+}
+
+function makeInputController() {
+    joystick = new Joystick(0, {callback: function(joystick, x, y) {
+        params.joystick_x = x;
+        params.joystick_y = y;
+        inputPos = {x: x, y: y};
+    }});
+}
+
+function makeJoystickPane() {
+    fJoystick.addInput(params, "joystick", {
+        label: "virtual joystick"
+    }).on("change", () => {
+            console.info("joystick: " + params.joystick)
+            joystick.toggle();
+    });
+
+    fJoystick.addMonitor(params, "joystick_x", {
+        //view: "graph",
+        min: -1,
+        max: 1
+    });
+
+    fJoystick.addMonitor(params, "joystick_y", {
+        //view: "graph",
+        min: -1,
+        max: 1
+    });
+}
+
+function makeGamepadPane() {
+    // fGamepad.addInput(params, "gamepad", {
+    //     label: "gamepad"
+    // }).on("change", () => {
+    //         console.info("gamepad: " + params.gamepad)
+    //         if (params.gamepad) {
+    //             makeGamepadController();
+    //         } else {
+    //             makeInputController();
+    //         }
+    // });
+
+    fGamepad.addButton({
+        title: "Cycle Gamepad"
+    }).on("click", () => {
+        if (gamepads.length > 0) {
+            params.gamepad = (params.gamepad + 1) % gamepads.length;
+        }
+    });
+
+    fGamepad.addMonitor(params, "gamepads", {
+        multiline: true
+    });
+
+    // fGamepad.addInput(params, "gamepad", {
+    //     min: 0,
+    //     max: gamepads.length - 1,
+    //     step: 1
+    // }).on("change", () => {
+    // })
+
+    fGamepad.addMonitor(params, "gamepad");
+
+    fGamepad.addMonitor(params, "gamepad_x", {
+        min: -1,
+        max: 1
+    });
+
+    fGamepad.addMonitor(params, "gamepad_y", {
+        min: -1,
+        max: 1
+    });
+
+    fGamepad.addButton({
+        title: "Refresh Gamepads"
+    }).on("click", () => {
+        params.gamepads = gamepads.toString();
+        if (gamepads.length > 0) {
+            //params.gamepad = gamepads[0].index + ": " + gamepads[0].id;
+            params.gamepad = active_gamepad;
+        }
+    });
+}
+
+function inputLoop() {
+    let gp = controllerLoop();
+    if (gp) {
+        params.gamepad_x = gp.axes[0] || params.gamepad_x;
+        params.gamepad_y = gp.axes[1] || params.gamepad_y;
+        if (gp.axes.length >= 2) {
+            inputPos = {x: gp.axes[0], y: gp.axes[1]} // TODO: prevent this from overwriting the joystick input
+        }
+    }
+}
+
 function hex2rgb(hex) {
     let validator = /^#?[0-9A-F]{6}$/i // regex pattern for validating hex colors
 
@@ -485,6 +606,7 @@ function render() {
     window.requestAnimationFrame( render )
 
     // TODO: update character
+    inputLoop();
 
     /* AGENT-BASED SIMULATION */
     gl.useProgram( simulationProgram )

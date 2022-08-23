@@ -82,6 +82,7 @@ class Joystick {
         this.control.style.transform = "translate(0, 0)";
         this.x = 0;
         this.y = 0;
+        this.callback(this, this.x, this.y);
     }
 
     onTouchMove(e) {
@@ -111,9 +112,7 @@ class Joystick {
         this.control.style.transform = "translate(" + cappedX + "px, " + cappedY + "px)";
 
         this.x = cappedX / this.radius_outer;
-        this.y = -cappedY / this.radius_outer;
-
-        document.getElementById("debug").innerHTML = "x: " + this.x + " y: " + this.y;
+        this.y = cappedY / this.radius_outer;
 
         this.callback(this, this.x, this.y);
         return {x: this.x, y: this.y};

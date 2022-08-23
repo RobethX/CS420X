@@ -1,4 +1,5 @@
 var gamepads = [];
+let active_gamepad = null;
 
 function buttonPressed(b) {
     if (typeof(b) == "object") {
@@ -8,16 +9,16 @@ function buttonPressed(b) {
 }
 
 function controllerLoop() {
+    gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []); // update
+    gamepads = gamepads.filter(gp => gp); // filter out disconnected gamepads
+
     if (!gamepads || gamepads.length < 1) { // Return if no gamepads connected
-        return
+        return null
     }
 
-    gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []); // update
+    var gp = gamepads[active_gamepad];
 
-    
-
-    var gp = gamepads[0]; // Only use the first gamepad
-    //TODO: implement multiple gamepads
+    return gp;
 }
 
 function controllerPane(gamepad, connected) {
@@ -48,9 +49,11 @@ function gamepadHandler(event, connected) {
 
     if (connected) {
         gamepads[gamepad.index] = gamepad;
+        active_gamepad = gamepad.index;
         console.log(`Gamepad ${gamepad.index} connected: ${gamepad.id} with ${gamepad.buttons.length} buttons and ${gamepad.axes.length} axes.`)
     } else {
         delete gamepads[gamepad.index];
+        active_gamepad = gamepads.length > 0 ? gamepads[0].index : null;
         console.log(`Gamepad ${gamepad.index} disconnected: ${gamepad.id}.`)
     }
 
