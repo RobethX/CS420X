@@ -8,7 +8,7 @@ function startAccelerometer() {
         accelerometer = new Accelerometer();
 
         accelerometer.addEventListener("reading", () => {
-            console.log(accelerometer.x, accelerometer.y, accelerometer.z);
+            //console.log(accelerometer.x, accelerometer.y, accelerometer.z);
         });
 
         accelerometer.addEventListener("error", (e) => {
@@ -42,7 +42,7 @@ function startGyroscope() {
         gyroscope = new Gyroscope();
 
         gyroscope.addEventListener("reading", () => {
-            console.log(gyroscope.x, gyroscope.y, gyroscope.z);
+            //console.log(gyroscope.x, gyroscope.y, gyroscope.z);
         });
 
         gyroscope.addEventListener("error", (e) => {
@@ -76,7 +76,7 @@ function startMagnetometer() {
         magnetometer = new Magnetometer();
 
         magnetometer.addEventListener("reading", () => {
-            console.log(magnetometer.x, magnetometer.y, magnetometer.z);
+            //console.log(magnetometer.x, magnetometer.y, magnetometer.z);
         });
 
         magnetometer.addEventListener("error", (e) => {

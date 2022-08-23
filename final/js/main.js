@@ -559,11 +559,11 @@ function inputLoop() {
     }
 
     if (gyroscope) {
-        let tmp_x = gyroscope.x || 0;
-        let tmp_y = gyroscope.y || 0;
-        let tmp_z = gyroscope.z || 0;
+        let gx = gyroscope.x || 0;
+        let gy = gyroscope.y || 0;
+        let gz = gyroscope.z || 0;
 
-        params.debug = tmp_x + " " + tmp_y + " " + tmp_z;
+        params.debug = gx + " " + gy + " " + gz;
     }
 }
 
