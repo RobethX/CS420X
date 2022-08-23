@@ -58,7 +58,7 @@ function gamepadHandler(event, connected) {
     }
 
     if (pane) {
-        //controllerPane(gamepad, connected);
+        params.gamepad = active_gamepad; // DEBUG: stupid
     }
 }
 

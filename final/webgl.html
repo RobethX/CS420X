@@ -53,6 +53,7 @@
 
         uniform vec2 u_cursor_position;
         uniform vec2 u_joystick_position;
+        uniform vec2 u_right_stick_position;
         
         // our chemical layer
         uniform sampler2D uSampler;
@@ -87,7 +88,7 @@
             vec2 pixel = 1. / resolution;
             
             // how far ahead should sensing occur? this is fun to play with
-            vec2 sensorDistance = pixel * u_sensor_distance; //9.
+            vec2 sensorDistance = pixel * (u_sensor_distance + u_right_stick_position.x * 3.); //9.
             
             // normalize our {-1,1} vertex coordinates to {0,1} for texture lookups
             vec2 pos = (1. + a_pos.xy) / 2.;
@@ -105,6 +106,7 @@
 
             // angle to turn
             float turn_angle = PI_4 * u_agent_rotate;
+            turn_angle -= u_right_stick_position.y / 4.;
             
             // if most chemical is found to left... 
             if( left > forward && left > right ) {
@@ -121,10 +123,6 @@
                 }
             } // else keep going the same direction, no change required
 
-            //if(distance(pos.xy, u_cursor_position) < sensorDistance.y) {
-            //    o_vpos.zw = normalize(u_cursor_position - pos.xy);
-            //}
-            
             // move our agent in our new direction by one pixel
             o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
 

@@ -86,7 +86,7 @@ class Joystick {
     }
 
     onTouchMove(e) {
-        if (this.active) {
+        if (this.active && !this.hidden) {
             let touch = e.targetTouches[0];
 
             let deltaX = touch.clientX - e.currentTarget.offsetLeft - this.radius_outer;
@@ -97,7 +97,7 @@ class Joystick {
     }
 
     onMouseMove(e) {
-        if (this.active) {
+        if (this.active && !this.hidden) {
             let deltaX = e.clientX - e.currentTarget.offsetLeft - this.radius_outer;
             let deltaY = e.clientY - e.currentTarget.offsetTop - this.radius_outer;
 

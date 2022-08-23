@@ -6,7 +6,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     dimensions = { width:null, height:null },
     agentCount = 1000000,
     params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
-    cursorPos, joystick, inputPos, uJoystickPos
+    cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
 const PRESET_1 = { // default
     distance: 9,
@@ -49,11 +49,10 @@ const PRESET_4 = { // sand
 };
 
 var INPUT_PARAMS = {
-    joystick: true,
+    joystick: false,
     joystick_x: 0,
     joystick_y: 0,
-    gamepads: gamepads.toString(),
-    gamepad: "",
+    gamepad: -1,
     gamepad_x: 0,
     gamepad_y: 0,
     accelerometer: false,
@@ -81,7 +80,7 @@ window.onload = function() {
 }
 
 function makeTweakPane() {
-    params = Object.assign(INPUT_PARAMS, PRESET_3); // use smoke by default
+    params = Object.assign(INPUT_PARAMS, PRESET_2); // use smoke by default
 
     pane = new Tweakpane.Pane({
         title: "Parameters",
@@ -467,6 +466,11 @@ function makeInputController() {
         gl.useProgram(simulationProgram)
         gl.uniform2f(uJoystickPos, inputPos.x, inputPos.y)
     }});
+
+    joystick.toggle(); // DEBUG: start with joystick hidden
+
+    uRightStickPos = gl.getUniformLocation(simulationProgram, "u_right_stick_position");
+    gl.uniform2f(uRightStickPos, 0, 0);
 }
 
 function makeJoystickPane() {
@@ -491,35 +495,14 @@ function makeJoystickPane() {
 }
 
 function makeGamepadPane() {
-    // fGamepad.addInput(params, "gamepad", {
-    //     label: "gamepad"
-    // }).on("change", () => {
-    //         console.info("gamepad: " + params.gamepad)
-    //         if (params.gamepad) {
-    //             makeGamepadController();
-    //         } else {
-    //             makeInputController();
-    //         }
-    // });
-
     fGamepad.addButton({
         title: "Cycle Gamepad"
     }).on("click", () => {
         if (gamepads.length > 0) {
-            params.gamepad = (params.gamepad + 1) % gamepads.length;
+            active_gamepad = (active_gamepad + 1) % gamepads.length;
+            params.gamepad = active_gamepad;
         }
     });
-
-    fGamepad.addMonitor(params, "gamepads", {
-        multiline: true
-    });
-
-    // fGamepad.addInput(params, "gamepad", {
-    //     min: 0,
-    //     max: gamepads.length - 1,
-    //     step: 1
-    // }).on("change", () => {
-    // })
 
     fGamepad.addMonitor(params, "gamepad");
 
@@ -531,16 +514,6 @@ function makeGamepadPane() {
     fGamepad.addMonitor(params, "gamepad_y", {
         min: -1,
         max: 1
-    });
-
-    fGamepad.addButton({
-        title: "Refresh Gamepads"
-    }).on("click", () => {
-        params.gamepads = gamepads.toString();
-        if (gamepads.length > 0) {
-            //params.gamepad = gamepads[0].index + ": " + gamepads[0].id;
-            params.gamepad = active_gamepad;
-        }
     });
 }
 
@@ -561,14 +534,18 @@ function makeOrientationPane() {
 function inputLoop() {
     let gp = controllerLoop();
     if (gp) {
-        params.gamepad_x = gp.axes[0] || params.gamepad_x;
-        params.gamepad_y = -gp.axes[1] || params.gamepad_y;
         if (gp.axes.length >= 2) {
+            params.gamepad_x = gp.axes[0] || params.gamepad_x;
+            params.gamepad_y = -gp.axes[1] || params.gamepad_y;
             inputPos = {x: gp.axes[0], y: -gp.axes[1]} // TODO: prevent this from overwriting the joystick input
-        }
 
-        gl.useProgram(simulationProgram)
-        gl.uniform2f(uJoystickPos, inputPos.x, inputPos.y)
+            gl.useProgram(simulationProgram)
+            gl.uniform2f(uJoystickPos, inputPos.x, inputPos.y)
+
+            if (gp.axes.length >= 4) {
+                gl.uniform2f(uRightStickPos, gp.axes[2], -gp.axes[3]);
+            }
+        }
     }
 }
 
