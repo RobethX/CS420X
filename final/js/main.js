@@ -8,7 +8,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
-const PRESET_1 = { // default
+const PRESET = { // default
     distance: 9,
     sweep: 0.5,
     size: 1.5,
@@ -16,36 +16,9 @@ const PRESET_1 = { // default
     speed: 1,
     rotate: 1,
     strength: 0.9,
-};
-
-const PRESET_2 = { // smoke
-    distance: 5,
-    sweep: 0.5,
-    size: 1.25,
-    opacity: 0.15,
-    speed: 5,
-    rotate: 0.35,
-    strength: 0.3,
-};
-
-const PRESET_3 = { // coral
-    distance: 3,
-    sweep: 0,
-    size: 1,
-    opacity: 0.1,
-    speed: 8.5,
-    rotate: 1.65,
-    strength: 0.5,
-};
-
-const PRESET_4 = { // sand
-    distance: 15,
-    sweep: 0.85,
-    size: 0.01,
-    opacity: 0.75,
-    speed: 3.25,
-    rotate: 0.2,
-    strength: 0.01,
+    separation_dist: 2.0,
+    cohesion_dist: 5.0,
+    alignment_dist: 5.0,
 };
 
 var INPUT_PARAMS = {
@@ -83,7 +56,7 @@ window.onload = function() {
 }
 
 function makeTweakPane() {
-    params = Object.assign(INPUT_PARAMS, PRESET_1);
+    params = Object.assign(INPUT_PARAMS, PRESET);
 
     pane = new Tweakpane.Pane({
         title: "Parameters",
@@ -111,31 +84,7 @@ function makeTweakPane() {
         title: "Default"
     }).on("click", () => {
         console.info("Loading preset 1")
-        pane.importPreset(PRESET_1);
-    });
-
-    fPresets.addButton({
-        label: "preset 2",
-        title: "Smoke"
-    }).on("click", () => {
-        console.info("Loading preset 2")
-        pane.importPreset(PRESET_2);
-    });
-
-    fPresets.addButton({
-        label: "preset 3",
-        title: "Coral"
-    }).on("click", () => {
-        console.info("Loading preset 3")
-        pane.importPreset(PRESET_3);
-    });
-
-    fPresets.addButton({
-        label: "preset 4",
-        title: "Sand"
-    }).on("click", () => {
-        console.info("Loading preset 4")
-        pane.importPreset(PRESET_4);
+        pane.importPreset(PRESET);
     });
 
     fPresets.addSeparator();
@@ -269,8 +218,8 @@ function makeSimulationBuffer() {
     for (let i = 0; i < agentCount * agentSize; i+= agentSize ) {
         buffer[i]   = -1 + Math.random() * 2
         buffer[i+1] = -1 + Math.random() * 2
-        buffer[i+2] = Math.random()
-        buffer[i+3] = Math.random()
+        buffer[i+2] = -1 + Math.random() * 2
+        buffer[i+3] = -1 + Math.random() * 2
     }
   
     gl.bindBuffer( gl.ARRAY_BUFFER, buffer1 )
@@ -358,6 +307,36 @@ function makeSimulationPane() {
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uAgentRotate, e.value);
+    });
+
+    const uSeparationDist = gl.getUniformLocation(simulationProgram, "u_separation_distance");
+    gl.uniform1f(uSeparationDist, params.separation_dist);
+    fAgent.addInput(params, "separation_dist", {
+        min: 0,
+        max: 100,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uSeparationDist, e.value);
+    });
+
+    const uCohesionDist = gl.getUniformLocation(simulationProgram, "u_cohesion_distance");
+    gl.uniform1f(uCohesionDist, params.cohesion_dist);
+    fAgent.addInput(params, "cohesion_dist", {
+        min: 0,
+        max: 100,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uCohesionDist, e.value);
+    });
+
+    const uAlignmentDist = gl.getUniformLocation(simulationProgram, "u_alignment_distance");
+    gl.uniform1f(uAlignmentDist, params.alignment_dist);
+    fAgent.addInput(params, "alignment_dist", {
+        min: 0,
+        max: 100,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uAlignmentDist, e.value);
     });
 }
 
