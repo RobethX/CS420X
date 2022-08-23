@@ -23,7 +23,7 @@ class JoystickController extends InputController {
 class Joystick {
     constructor(id, params = {}) {
         this.id = id;
-        this.radius = params.radius || Math.min(Math.max(0.07 * window.innerWidth, 25), 0.1 * window.innerHeight);
+        this.radius = params.radius || Math.min(Math.max(0.05 * window.innerWidth, 25), 0.1 * window.innerHeight);
         this.radius_inner = params.radius_inner || this.radius - 10;
         this.radius_outer = params.radius_outer || this.radius * 2;
         this.mouse_support = params.mouse_support || true;
