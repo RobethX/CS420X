@@ -2,6 +2,10 @@ body {
     overflow: hidden;
 }
 
+.tp-dfwv {
+    min-width: 300px;
+}
+
 .joystick-container {
     position: absolute;
     padding: 0;

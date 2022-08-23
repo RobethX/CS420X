@@ -5,7 +5,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     copyProgram, simulationProgram, ddProgram, quad, pane,
     dimensions = { width:null, height:null },
     agentCount = 1000000,
-    params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad,
+    params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos
 
 const PRESET_1 = { // default
@@ -55,7 +55,10 @@ var INPUT_PARAMS = {
     gamepads: gamepads.toString(),
     gamepad: "",
     gamepad_x: 0,
-    gamepad_y: 0
+    gamepad_y: 0,
+    accelerometer: false,
+    gyroscope: false,
+    magnetometer: false,
 }
 
 window.onload = function() {
@@ -94,6 +97,7 @@ function makeTweakPane() {
 
     fJoystick = tab.pages[0].addFolder({title: "Virtual Joystick"});
     fGamepad = tab.pages[0].addFolder({title: "Gamepad"});
+    fOrientation = tab.pages[0].addFolder({title: "Orientation"});
 
     fPresets = tab.pages[1].addFolder(({title: "Presets"}));
     fSensor = tab.pages[1].addFolder({title: "Sensor"});
@@ -447,6 +451,7 @@ function makeInteractionPhase() {
     makeInputController();
     makeJoystickPane();
     makeGamepadPane();
+    makeOrientationPane();
 }
 
 function makeInputController() {
@@ -529,6 +534,20 @@ function makeGamepadPane() {
             //params.gamepad = gamepads[0].index + ": " + gamepads[0].id;
             params.gamepad = active_gamepad;
         }
+    });
+}
+
+function makeOrientationPane() {
+    fOrientation.addInput(params, "accelerometer").on("change", () => {
+        console.info("accelerometer: " + params.accelerometer)
+    });
+
+    fOrientation.addInput(params, "gyroscope").on("change", () => {
+        console.info("gyroscope: " + params.gyroscope)
+    });
+
+    fOrientation.addInput(params, "magnetometer").on("change", () => {
+        console.info("magnetometer: " + params.magnetometer)
     });
 }
 
