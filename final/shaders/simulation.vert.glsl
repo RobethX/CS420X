@@ -11,15 +11,10 @@ const simulationVertexShaderScript = `\
 in vec4 a_pos;
 
 uniform vec2 resolution;
-
 uniform float time;
 
-uniform float u_sensor_distance;
-uniform float u_sensor_sweep;
-uniform float u_agent_size;
-uniform float u_agent_speed;
-uniform float u_agent_rotate;
 uniform int u_agent_count;
+uniform float u_agent_speed;
 
 uniform float u_separation_distance;
 uniform float u_cohesion_distance;
@@ -63,30 +58,22 @@ float readSensor( vec2 pos, vec2 dir, float angle, vec2 distance ) {
 }
 
 void main() {
+    // initialize feedback transform output
+    o_vpos = a_pos;
+    
     // get normalied height / width of a single pixel 
     vec2 pixel = 1. / resolution;
     ivec2 ires = ivec2( resolution );
     
     // how far ahead should sensing occur? this is fun to play with
-    vec2 sensorDistance = pixel * (u_sensor_distance + u_right_stick_position.x * 3.); //9.
+    //vec2 sensorDistance = pixel * (u_sensor_distance + u_right_stick_position.x * 3.); //9.
     
     // normalize our {-1,1} vertex coordinates to {0,1} for texture lookups
     vec2 pos = (1. + a_pos.xy) / 2.;
 
-    // sweep the sensor around the agent
-    float sweep_angle = u_sensor_sweep * PI_4 * sin(time * 0.001);
-    
-    // read sensor information at different angles
-    float left     = readSensor( pos, a_pos.zw, -PI_4 + sweep_angle, sensorDistance );
-    float forward  = readSensor( pos, a_pos.zw, sweep_angle, sensorDistance );
-    float right    = readSensor( pos, a_pos.zw, PI_4 - sweep_angle,  sensorDistance );
-    
-    // initialize feedback transform output
-    o_vpos = a_pos;
-
     // angle to turn
-    float turn_angle = PI_4 * u_agent_rotate;
-    turn_angle -= u_right_stick_position.y / 4.;
+    //float turn_angle = PI_4 * u_agent_rotate;
+    //turn_angle -= u_right_stick_position.y / 4.;
 
     vec2 separation = vec2(0.0);
     vec2 cohesion = vec2(0.0);
@@ -140,8 +127,8 @@ void main() {
     o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
 
     // joystick :)
-    float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
-    o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
+    //float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
+    //o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
     
     //gl_PointSize = u_agent_size; // 1.
     gl_PointSize = 1.;

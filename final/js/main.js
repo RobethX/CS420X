@@ -5,17 +5,11 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     simulationProgram, renderProgram,
     dimensions = { width:null, height:null },
     agentCount = 10000,
-    pane, params, tab, fSensor, fAgent, fChemical, fJoystick, fGamepad, fOrientation,
+    pane, params, tab, fAgent, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
 const PRESET = { // default
-    distance: 9,
-    sweep: 0.5,
-    size: 1.5,
-    opacity: 1,
     speed: 1,
-    rotate: 1,
-    strength: 0.9,
     separation_dist: 2.0,
     cohesion_dist: 5.0,
     alignment_dist: 5.0,
@@ -64,19 +58,17 @@ function makeTweakPane() {
 
     tab = pane.addTab({
         pages: [
-            {title: "Input"},
             {title: "Simulation"},
+            {title: "Input"},
         ]
     });
 
-    fJoystick = tab.pages[0].addFolder({title: "Virtual Joystick"});
-    fGamepad = tab.pages[0].addFolder({title: "Gamepad"});
-    fOrientation = tab.pages[0].addFolder({title: "Orientation"});
+    fPresets = tab.pages[0].addFolder(({title: "Presets"}));
+    fAgent = tab.pages[0].addFolder({title: "Agent"});
 
-    fPresets = tab.pages[1].addFolder(({title: "Presets"}));
-    fSensor = tab.pages[1].addFolder({title: "Sensor"});
-    fAgent = tab.pages[1].addFolder({title: "Agent"});
-    fChemical = tab.pages[1].addFolder({title: "Chemical"});
+    fJoystick = tab.pages[1].addFolder({title: "Virtual Joystick"});
+    fGamepad = tab.pages[1].addFolder({title: "Gamepad"});
+    fOrientation = tab.pages[1].addFolder({title: "Orientation"});
 
     fPresets.addButton({
         label: "preset 1",
@@ -167,56 +159,6 @@ function makeSimulationBuffer() {
 }
 
 function makeSimulationPane() {
-    const uSensorDistance = gl.getUniformLocation(simulationProgram, "u_sensor_distance");
-    gl.uniform1f(uSensorDistance, params.distance);
-    fSensor.addInput(params, "distance", {
-        min: 0,
-        max: 15,
-        step: 0.25,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uSensorDistance, e.value);
-    });
-
-    const uSensorSweep = gl.getUniformLocation(simulationProgram, "u_sensor_sweep");
-    gl.uniform1f(uSensorSweep, params.sweep);
-    fSensor.addInput(params, "sweep", {
-        min: 0,
-        max: 1,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uSensorSweep, e.value);
-    });
-
-    const uAgentSize = gl.getUniformLocation(simulationProgram, "u_agent_size");
-    gl.uniform1f(uAgentSize, params.size);
-    fAgent.addInput(params, "size", {
-        min: 0.1,
-        max: 3,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uAgentSize, e.value);
-    });
-
-    /*
-    const uAgentColor = gl.getUniformLocation(simulationProgram, "u_agent_color");
-    gl.uniform3f(uAgentColor, ...hex2rgb(params.color));
-    fAgent.addInput(params, "color", {type: "color",}).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform3f(uAgentColor, ...hex2rgb(e.value));
-    });
-    */
-
-    const uAgentOpacity = gl.getUniformLocation(simulationProgram, "u_agent_opacity");
-    gl.uniform1f(uAgentOpacity, params.opacity);
-    fAgent.addInput(params, "opacity", {
-        min: 0,
-        max: 1,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uAgentOpacity, e.value);
-    });
-
     const uAgentSpeed = gl.getUniformLocation(simulationProgram, "u_agent_speed");
     gl.uniform1f(uAgentSpeed, params.speed);
     fAgent.addInput(params, "speed", {
@@ -225,16 +167,6 @@ function makeSimulationPane() {
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uAgentSpeed, e.value);
-    });
-
-    const uAgentRotate = gl.getUniformLocation(simulationProgram, "u_agent_rotate");
-    gl.uniform1f(uAgentRotate, params.rotate);
-    fAgent.addInput(params, "rotate", {
-        min: 0,
-        max: 2,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uAgentRotate, e.value);
     });
 
     const uSeparationDist = gl.getUniformLocation(simulationProgram, "u_separation_distance");
