@@ -143,7 +143,8 @@ void main() {
     float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
     o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
     
-    gl_PointSize = u_agent_size; // 1.
+    //gl_PointSize = u_agent_size; // 1.
+    gl_PointSize = 1.;
     
     // position is for fragment shader rendering, don"t need to include heading
     //gl_Position = vec4( a_pos.x, a_pos.y, 0., 1. );
