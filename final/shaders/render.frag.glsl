@@ -13,7 +13,6 @@ uniform vec2 resolution;
 out vec4 color;
 
 void main() {
-    color = vec4(clamp(o_vpos.z * 100. + 1., 0., 1.), clamp(o_vpos.w * 100. + 1., 0., 1.), 0., 1.);
     color = vec4(1.);
 }
 `;

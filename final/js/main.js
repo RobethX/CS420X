@@ -10,9 +10,13 @@ let gl, uTime, uRes, uResDD, transformFeedback,
 
 const PRESET = { // default
     speed: 1,
-    separation_dist: 2.0,
+    separation_dist: 1.0,
     cohesion_dist: 5.0,
     alignment_dist: 5.0,
+    separation_power: 1.0,
+    cohesion_power: 1.0,
+    alignment_power: 1.0,
+    centering_power: 1.0
 };
 
 var INPUT_PARAMS = {
@@ -31,6 +35,7 @@ var INPUT_PARAMS = {
 window.onload = function() {
     const canvas = document.getElementById("gl")
     gl = canvas.getContext("webgl2")
+    gl.getExtension("EXT_color_buffer_float");
     // const dim = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight
     // canvas.width  = dimensions.width  = dim
     // canvas.height = dimensions.height = dim
@@ -173,7 +178,7 @@ function makeSimulationPane() {
     gl.uniform1f(uSeparationDist, params.separation_dist);
     fAgent.addInput(params, "separation_dist", {
         min: 0,
-        max: 100,
+        max: 10,
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uSeparationDist, e.value);
@@ -183,7 +188,7 @@ function makeSimulationPane() {
     gl.uniform1f(uCohesionDist, params.cohesion_dist);
     fAgent.addInput(params, "cohesion_dist", {
         min: 0,
-        max: 100,
+        max: 10,
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uCohesionDist, e.value);
@@ -193,10 +198,50 @@ function makeSimulationPane() {
     gl.uniform1f(uAlignmentDist, params.alignment_dist);
     fAgent.addInput(params, "alignment_dist", {
         min: 0,
-        max: 100,
+        max: 10,
     }).on("change", e => {
         gl.useProgram(simulationProgram);
         gl.uniform1f(uAlignmentDist, e.value);
+    });
+
+    const uSeparationPower = gl.getUniformLocation(simulationProgram, "u_separation_power");
+    gl.uniform1f(uSeparationPower, params.separation_power);
+    fAgent.addInput(params, "separation_power", {
+        min: 0,
+        max: 10,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uSeparationPower, e.value);
+    });
+
+    const uCohesionPower = gl.getUniformLocation(simulationProgram, "u_cohesion_power");
+    gl.uniform1f(uCohesionPower, params.cohesion_power);
+    fAgent.addInput(params, "cohesion_power", {
+        min: 0,
+        max: 10,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uCohesionPower, e.value);
+    });
+
+    const uAlignmentPower = gl.getUniformLocation(simulationProgram, "u_alignment_power");
+    gl.uniform1f(uAlignmentPower, params.alignment_power);
+    fAgent.addInput(params, "alignment_power", {
+        min: 0,
+        max: 10,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uAlignmentPower, e.value);
+    });
+
+    const uCenteringPower = gl.getUniformLocation(simulationProgram, "u_centering_power");
+    gl.uniform1f(uCenteringPower, params.centering_power);
+    fAgent.addInput(params, "centering_power", {
+        min: 0,
+        max: 10,
+    }).on("change", e => {
+        gl.useProgram(simulationProgram);
+        gl.uniform1f(uCenteringPower, e.value);
     });
 }
 
@@ -423,7 +468,7 @@ function makeTextures() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     
     // specify texture format, see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, dimensions.width, dimensions.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, agentCount, 1, 0, gl.RGBA, gl.FLOAT, (new Float32Array(agentCount * 4)));
 
     textureFront = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, textureFront)
@@ -431,8 +476,8 @@ function makeTextures() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, dimensions.width, dimensions.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, agentCount, 1, 0, gl.RGBA, gl.FLOAT, (new Float32Array(agentCount * 4)));
+    
     // Create a framebuffer and attach the texture.
     framebuffer = gl.createFramebuffer()
 }
@@ -454,6 +499,7 @@ function render() {
     time++
     gl.uniform1f(uTime, time)
 
+    gl.viewport(0, 0, agentCount, 1);
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
 
     // use the framebuffer to write to our textureFront texture
@@ -465,7 +511,7 @@ function render() {
 
     // bind our array buffer of agents
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
-    gl.vertexAttribPointer(simulationPosition, 4, gl.FLOAT, false, 0,0)
+    gl.vertexAttribPointer(simulationPosition, 4, gl.FLOAT, false, 0, 0)
     gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, buffer2)
     
     gl.beginTransformFeedback(gl.POINTS)  
@@ -476,9 +522,9 @@ function render() {
     /* COPY TO SCREEN */
     // use the default framebuffer object by passing null
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-    gl.viewport(0,0,gl.drawingBufferWidth, gl.drawingBufferHeight)
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
 
-    gl.bindTexture(gl.TEXTURE_2D, textureFront)
+    //gl.bindTexture(gl.TEXTURE_2D, textureFront)
 
     // use our render shader
     gl.useProgram(renderProgram);
@@ -491,11 +537,7 @@ function render() {
     
     /* END COPY TO SCREEN */
 
-    // because we copied texture A over to texture B we don't
-    // need to do a swap  
-    let tmp = buffer1;  buffer1 = buffer2;  buffer2 = tmp;
     /* SWAP */
-    let _tmp = textureFront
-    textureFront = textureBack
-    textureBack = _tmp
+    let tmp = buffer1;  buffer1 = buffer2;  buffer2 = tmp;
+    let _tmp = textureFront; textureFront = textureBack; textureBack = _tmp;
 }

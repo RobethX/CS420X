@@ -20,12 +20,17 @@ uniform float u_separation_distance;
 uniform float u_cohesion_distance;
 uniform float u_alignment_distance;
 
+uniform float u_separation_power;
+uniform float u_cohesion_power;
+uniform float u_alignment_power;
+uniform float u_centering_power;
+
 uniform vec2 u_cursor_position;
 uniform vec2 u_joystick_position;
 uniform vec2 u_right_stick_position;
 
-// our chemical layer
 uniform sampler2D uSampler;
+//uniform samplerBuffer temp;
 
 // the output of our feedback transform
 // xy will store our position
@@ -60,81 +65,116 @@ float readSensor( vec2 pos, vec2 dir, float angle, vec2 distance ) {
 void main() {
     // initialize feedback transform output
     o_vpos = a_pos;
-    
+
+    int id = gl_VertexID;
+
     // get normalied height / width of a single pixel 
     vec2 pixel = 1. / resolution;
-    ivec2 ires = ivec2( resolution );
+    ivec2 ires = ivec2(resolution);
     
     // how far ahead should sensing occur? this is fun to play with
     //vec2 sensorDistance = pixel * (u_sensor_distance + u_right_stick_position.x * 3.); //9.
     
     // normalize our {-1,1} vertex coordinates to {0,1} for texture lookups
     vec2 pos = (1. + a_pos.xy) / 2.;
+    ivec2 ipos = ivec2(a_pos.xy);
 
     // angle to turn
     //float turn_angle = PI_4 * u_agent_rotate;
     //turn_angle -= u_right_stick_position.y / 4.;
 
     vec2 separation = vec2(0.0);
+    int separation_count = 0;
     vec2 cohesion = vec2(0.0);
-    vec2 cohesionCentroid = vec2(0.0);
-    int cohesionCount = 0;
+    vec2 cohesion_centroid = vec2(0.0);
+    int cohesion_count = 0;
     vec2 alignment = vec2(0.0);
+    int alignment_count = 0;
 
-    int range = 25;
-    ivec2 iv = ivec2(o_vpos.xy);
+    int range = 50;
 
-    for (int i = iv.x - range; i < iv.x + range; i++) {
-        for (int j = iv.y - range; j < iv.y + range; j++) {
-            ivec2 coord = (ivec2(i, j) + ires) % ires;
-            vec4 agent = texelFetch( uSampler, coord, 0 );
-            float dist = distance( pos, agent.xy );
-            vec2 diff = agent.xy - pos;
-            diff = normalize(diff);
+    for (int i = 0; i <= u_agent_count; i++) {
+        if (i == id) {
+            continue;
+        }
 
-            if (agent.xy == pos) {
-                continue;
-            }
+        ivec2 coord = ivec2(i,0);
+        //vec4 neighbor = texelFetch(uSampler, coord, 0);
+        vec4 neighbor = texture(uSampler, vec2((float(i) + 0.5)/float(u_agent_count), 1.));
+        //neighbor = texture(uSampler, vec2(float(i) + 0.5, 0.5));
+        //neighbor.xy = (1. + neighbor.xy) / 2.;
+        float dist = distance(o_vpos.xy, neighbor.xy);
+        vec2 diff = neighbor.xy - o_vpos.xy;
 
-            if (dist < u_separation_distance * pixel.y) { // separation
-                //o_vpos.xy -= diff * u_agent_speed * pixel.x;
-                separation += diff * pixel.x;
-            }
+        if (neighbor.xy == vec2(0.0)) {
+            continue;
+        }
 
-            if (dist < u_cohesion_distance * pixel.y) { // cohesion
-                cohesionCount++;
-                cohesionCentroid += agent.xy;
-            }
+        if (dist < u_separation_distance * 0.001) { // separation
+            separation_count++;
+            separation -= diff.xy;
+        }
 
-            if (dist < u_alignment_distance * pixel.x) { // alignment
-                alignment += agent.zw;
-            }
+        if (dist < u_cohesion_distance * 0.001) { // cohesion
+            cohesion_count++;
+            cohesion_centroid += neighbor.xy;
+        }
+
+        if (dist < u_alignment_distance * 0.001) { // alignment
+            alignment_count++;
+            alignment += neighbor.zw;
         }
     }
 
-    o_vpos.zw += separation * 0.01;
-
-    if (cohesionCount > 0) {
-        cohesionCentroid /= float(cohesionCount);
-        cohesion = cohesionCentroid - pos;
-        cohesion = normalize(cohesion);
-        o_vpos.zw += cohesion * 0.1;
+    if (separation_count > 0) {
+        separation /= float(separation_count);
+        if (length(separation) > 1.0) {
+            separation = normalize(separation);
+        }
+        o_vpos.zw += separation * u_separation_power * 0.005;
     }
 
-    o_vpos.zw += alignment * 0.01;
+    if (cohesion_count > 0) {
+        cohesion_centroid /= float(cohesion_count);
+        cohesion = cohesion_centroid - o_vpos.xy;
+        cohesion = normalize(cohesion);
+        o_vpos.zw += cohesion * u_cohesion_power * 0.005;
+    }
+
+    if (alignment_count > 0) {
+        alignment /= float(alignment_count);
+        alignment = normalize(alignment);
+        o_vpos.zw += alignment * u_alignment_power * 0.001;
+    }
+
+    vec2 center_force = (vec2(0.5, 0.5) - pos.xy);
+    o_vpos.zw += center_force * u_centering_power * 0.003;
+
+    if (length(o_vpos.zw) > 1.) {
+        o_vpos.zw = normalize(o_vpos.zw);
+    }
 
     // move our agent in our new direction by one pixel
     o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
 
+    // o_vpos.x = clamp(o_vpos.x, -1., 1.);
+    // o_vpos.y = clamp(o_vpos.y, -1., 1.);
+
+    if (o_vpos.x < -1. || o_vpos.x > 1.) {
+        o_vpos.z = -o_vpos.z * 0.5;
+    }
+
+    if (o_vpos.y < -1. || o_vpos.y > 1.) {
+        o_vpos.w = -o_vpos.w * 0.5;
+    }
+
     // joystick :)
     //float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
     //o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
-    
-    //gl_PointSize = u_agent_size; // 1.
+
     gl_PointSize = 1.;
-    
-    // position is for fragment shader rendering, don"t need to include heading
     //gl_Position = vec4( a_pos.x, a_pos.y, 0., 1. );
-    gl_Position = vec4( o_vpos.xy, 0., 1. );
+    //gl_Position = vec4(o_vpos.x, o_vpos.y, 0., 1.);
+    gl_Position = vec4((2. * (float(id) / float(u_agent_count)) - 1.), 0, 0, 1.);
 }
 `;
