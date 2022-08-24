@@ -11,3 +11,12 @@ Click [here](webgl.html) for a fullscreen view.
 ---
 
 Writeup here
+
+Boids?
+Input Methods
+Compute shaders are not supported by default and this version of WebGL does not have buffer textures.
+Stored data in texture manually.
+
+---
+
+Video
