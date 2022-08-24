@@ -4,7 +4,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     textureBack, textureFront, framebuffer,
     simulationProgram, renderProgram,
     dimensions = { width:null, height:null },
-    agentCount = 10000,
+    agentCount = 1000,
     pane, params, tab, fAgent, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 

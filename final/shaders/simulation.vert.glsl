@@ -147,11 +147,26 @@ void main() {
         o_vpos.zw += alignment * u_alignment_power * 0.001;
     }
 
-    vec2 center_force = (vec2(0.5, 0.5) - pos.xy);
-    o_vpos.zw += center_force * u_centering_power * 0.003;
+    o_vpos.xy += u_joystick_position * 0.001;
 
     if (length(o_vpos.zw) > 1.) {
         o_vpos.zw = normalize(o_vpos.zw);
+    }
+
+    if (o_vpos.x < -0.95) {
+        o_vpos.z += 0.05 * u_centering_power;
+    }
+
+    if (o_vpos.x > 0.95) {
+        o_vpos.z -= 0.05 * u_centering_power;
+    }
+
+    if (o_vpos.y < -0.95) {
+        o_vpos.w += 0.05 * u_centering_power;
+    }
+
+    if (o_vpos.y > 0.95) {
+        o_vpos.w -= 0.05 * u_centering_power;
     }
 
     // move our agent in our new direction by one pixel
@@ -159,14 +174,6 @@ void main() {
 
     // o_vpos.x = clamp(o_vpos.x, -1., 1.);
     // o_vpos.y = clamp(o_vpos.y, -1., 1.);
-
-    if (o_vpos.x < -1. || o_vpos.x > 1.) {
-        o_vpos.z = -o_vpos.z * 0.5;
-    }
-
-    if (o_vpos.y < -1. || o_vpos.y > 1.) {
-        o_vpos.w = -o_vpos.w * 0.5;
-    }
 
     // joystick :)
     //float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
