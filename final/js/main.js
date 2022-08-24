@@ -110,17 +110,13 @@ function makeCopyPhase() {
 }
 
 function makeCopyShaders() {
-    let shaderScript = document.getElementById('copyVertex')
-    let shaderSource = shaderScript.text
     let vertexShader = gl.createShader( gl.VERTEX_SHADER )
-    gl.shaderSource( vertexShader, shaderSource )
+    gl.shaderSource( vertexShader, copyVertexShaderScript )
     gl.compileShader( vertexShader )
 
     // create fragment shader
-    shaderScript = document.getElementById('copyFragment')
-    shaderSource = shaderScript.text
     const drawFragmentShader = gl.createShader( gl.FRAGMENT_SHADER )
-    gl.shaderSource( drawFragmentShader, shaderSource )
+    gl.shaderSource( drawFragmentShader, copyFragmentShaderScript )
     gl.compileShader( drawFragmentShader )
     console.log( gl.getShaderInfoLog(drawFragmentShader) )
 
@@ -178,17 +174,13 @@ function makeSimulationPhase(){
 }
 
 function makeSimulationShaders() {
-    let shaderScript = document.getElementById('simulationVertex')
-    let shaderSource = shaderScript.text
     let vertexShader = gl.createShader( gl.VERTEX_SHADER )
-    gl.shaderSource( vertexShader, shaderSource )
+    gl.shaderSource( vertexShader, simulationVertexShaderScript )
     gl.compileShader( vertexShader )
 
     // create fragment shader
-    shaderScript = document.getElementById('simulationFragment')
-    shaderSource = shaderScript.text
     const simulationFragmentShader = gl.createShader( gl.FRAGMENT_SHADER )
-    gl.shaderSource( simulationFragmentShader, shaderSource )
+    gl.shaderSource( simulationFragmentShader, simulationFragmentShaderScript )
     gl.compileShader( simulationFragmentShader )
     console.log( gl.getShaderInfoLog(simulationFragmentShader) )
     
@@ -373,17 +365,13 @@ function makeDecayDiffusePhase() {
 }
 
 function makeDecayDiffuseShaders() {
-    let shaderScript = document.getElementById('copyVertex')
-    let shaderSource = shaderScript.text
     let vertexShader = gl.createShader( gl.VERTEX_SHADER )
-    gl.shaderSource( vertexShader, shaderSource )
+    gl.shaderSource( vertexShader, copyVertexShaderScript )
     gl.compileShader( vertexShader )
 
     // create fragment shader
-    shaderScript = document.getElementById('ddFragment')
-    shaderSource = shaderScript.text
     const drawFragmentShader = gl.createShader( gl.FRAGMENT_SHADER )
-    gl.shaderSource( drawFragmentShader, shaderSource )
+    gl.shaderSource( drawFragmentShader, ddFragmentShaderScript )
     gl.compileShader( drawFragmentShader )
     console.log( gl.getShaderInfoLog(drawFragmentShader) )
 
