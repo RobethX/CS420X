@@ -10,7 +10,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
 
 const PRESET = { // default
     speed: 1,
-    separation_dist: 1.0,
+    separation_dist: 2.0,
     cohesion_dist: 5.0,
     alignment_dist: 5.0,
     separation_power: 1.0,

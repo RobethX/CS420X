@@ -1,7 +1,7 @@
 const simulationVertexShaderScript = `\
 #version 300 es
 
-#define PI_4 3.1415926538/4.
+#define PI_4 3.14159265359/4.
 
 #ifdef GL_ES
     precision mediump float;
@@ -45,6 +45,10 @@ vec2 rotate(vec2 dir, float angle) {
     float  c = cos( angle );
     mat2   m = mat2( c, -s, s, c );
     return m * dir;
+}
+
+float random(in vec2 p) {
+    return fract(sin(dot(p.xy, vec2(42.6852, 11.2225))) * 12366.4566);
 }
 
 // pos - position of agent
@@ -104,23 +108,21 @@ void main() {
         //neighbor = texture(uSampler, vec2(float(i) + 0.5, 0.5));
         //neighbor.xy = (1. + neighbor.xy) / 2.;
         float dist = distance(o_vpos.xy, neighbor.xy);
-        vec2 diff = neighbor.xy - o_vpos.xy;
+        vec2 diff = o_vpos.xy - neighbor.xy;
 
         if (neighbor.xy == vec2(0.0)) {
             continue;
         }
 
-        if (dist < u_separation_distance * 0.001) { // separation
+        if (dist < u_separation_distance * 0.01) { // separation
             separation_count++;
-            separation -= diff.xy;
-        }
-
-        if (dist < u_cohesion_distance * 0.001) { // cohesion
+            separation += diff.xy;
+        } else if (dist < u_cohesion_distance * 0.01) { // cohesion
             cohesion_count++;
             cohesion_centroid += neighbor.xy;
         }
 
-        if (dist < u_alignment_distance * 0.001) { // alignment
+        if (dist < u_alignment_distance * 0.01) { // alignment
             alignment_count++;
             alignment += neighbor.zw;
         }
@@ -129,9 +131,10 @@ void main() {
     if (separation_count > 0) {
         separation /= float(separation_count);
         if (length(separation) > 1.0) {
-            separation = normalize(separation);
+            //separation = normalize(separation);
         }
-        o_vpos.zw += separation * u_separation_power * 0.005;
+        //separation -= o_vpos.xy;
+        o_vpos.zw += separation * u_separation_power * 0.5;
     }
 
     if (cohesion_count > 0) {
@@ -143,41 +146,56 @@ void main() {
 
     if (alignment_count > 0) {
         alignment /= float(alignment_count);
-        alignment = normalize(alignment);
-        o_vpos.zw += alignment * u_alignment_power * 0.001;
+        alignment = normalize(alignment - o_vpos.zw);
+        o_vpos.zw += (alignment) * u_alignment_power * 0.005;
     }
 
-    o_vpos.xy += u_joystick_position * 0.001;
+    //o_vpos.xy += u_joystick_position * 0.005;
 
     if (length(o_vpos.zw) > 1.) {
         o_vpos.zw = normalize(o_vpos.zw);
     }
 
-    if (o_vpos.x < -0.95) {
-        o_vpos.z += 0.05 * u_centering_power;
+    if (length(u_joystick_position) > 0.01) {
+        o_vpos.zw += u_joystick_position * 0.01;
     }
 
-    if (o_vpos.x > 0.95) {
-        o_vpos.z -= 0.05 * u_centering_power;
-    }
+    float bound = 0.95;
 
-    if (o_vpos.y < -0.95) {
-        o_vpos.w += 0.05 * u_centering_power;
-    }
+    // if (o_vpos.x < -bound) {
+    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
+    //     o_vpos.z += 0.05 * u_centering_power;
+    // }
+    // if (o_vpos.x > bound) {
+    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
+    //     o_vpos.z -= 0.05 * u_centering_power;
+    // }
+    // if (o_vpos.y < -bound) {
+    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
+    //     o_vpos.w += 0.05 * u_centering_power;
+    // }
+    // if (o_vpos.y > bound) {
+    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
+    //     o_vpos.w -= 0.05 * u_centering_power;
+    // }
 
-    if (o_vpos.y > 0.95) {
-        o_vpos.w -= 0.05 * u_centering_power;
-    }
+    //o_vpos.zw = rotate(o_vpos.zw, 0.01);
 
     // move our agent in our new direction by one pixel
     o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
 
-    // o_vpos.x = clamp(o_vpos.x, -1., 1.);
-    // o_vpos.y = clamp(o_vpos.y, -1., 1.);
+    if (o_vpos.x > 1. || o_vpos.x < -1.) {
+        o_vpos.x *= -1.;
+        //o_vpos.zw = rotate(o_vpos.zw, PI_4);
+    }
 
-    // joystick :)
-    //float joystick_sensor = readSensor( pos, u_joystick_position, 0., sensorDistance );
-    //o_vpos.xy += u_joystick_position * pixel * u_agent_speed * joystick_sensor;
+    if (o_vpos.y > 1. || o_vpos.y < -1.) {
+        o_vpos.y *= -1.;
+        //o_vpos.zw = rotate(o_vpos.zw, PI_4);
+    }
+
+    //o_vpos.x = clamp(o_vpos.x, -1., 1.);
+    //o_vpos.y = clamp(o_vpos.y, -1., 1.);
 
     gl_PointSize = 1.;
     //gl_Position = vec4( a_pos.x, a_pos.y, 0., 1. );
