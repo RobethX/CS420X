@@ -11,8 +11,8 @@ let gl, uTime, uRes, uResDD, transformFeedback,
 const PRESET = { // default
     speed: 1,
     separation_dist: 2.0,
-    cohesion_dist: 5.0,
-    alignment_dist: 5.0,
+    cohesion_dist: 3.0,
+    alignment_dist: 3.0,
     separation_power: 1.0,
     cohesion_power: 1.0,
     alignment_power: 1.0,
@@ -236,13 +236,13 @@ function makeSimulationPane() {
 
     const uCenteringPower = gl.getUniformLocation(simulationProgram, "u_centering_power");
     gl.uniform1f(uCenteringPower, params.centering_power);
-    fAgent.addInput(params, "centering_power", {
-        min: 0,
-        max: 10,
-    }).on("change", e => {
-        gl.useProgram(simulationProgram);
-        gl.uniform1f(uCenteringPower, e.value);
-    });
+    // fAgent.addInput(params, "centering_power", {
+    //     min: 0,
+    //     max: 10,
+    // }).on("change", e => {
+    //     gl.useProgram(simulationProgram);
+    //     gl.uniform1f(uCenteringPower, e.value);
+    // });
 }
 
 function makeSimulationUniforms() {
@@ -383,17 +383,17 @@ function makeGamepadPane() {
 }
 
 function makeOrientationPane() {
-    fOrientation.addInput(params, "accelerometer").on("change", () => {
-        console.info("accelerometer: " + params.accelerometer)
-    });
+    // fOrientation.addInput(params, "accelerometer").on("change", () => {
+    //     console.info("accelerometer: " + params.accelerometer)
+    // });
 
     fOrientation.addInput(params, "gyroscope").on("change", () => {
         console.info("gyroscope: " + params.gyroscope)
     });
 
-    fOrientation.addInput(params, "magnetometer").on("change", () => {
-        console.info("magnetometer: " + params.magnetometer)
-    });
+    // fOrientation.addInput(params, "magnetometer").on("change", () => {
+    //     console.info("magnetometer: " + params.magnetometer)
+    // });
 
     fOrientation.addMonitor(params, "debug");
 }

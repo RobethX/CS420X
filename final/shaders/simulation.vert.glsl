@@ -105,8 +105,6 @@ void main() {
         ivec2 coord = ivec2(i,0);
         //vec4 neighbor = texelFetch(uSampler, coord, 0);
         vec4 neighbor = texture(uSampler, vec2((float(i) + 0.5)/float(u_agent_count), 1.));
-        //neighbor = texture(uSampler, vec2(float(i) + 0.5, 0.5));
-        //neighbor.xy = (1. + neighbor.xy) / 2.;
         float dist = distance(o_vpos.xy, neighbor.xy);
         vec2 diff = o_vpos.xy - neighbor.xy;
 
@@ -141,13 +139,13 @@ void main() {
         cohesion_centroid /= float(cohesion_count);
         cohesion = cohesion_centroid - o_vpos.xy;
         cohesion = normalize(cohesion);
-        o_vpos.zw += cohesion * u_cohesion_power * 0.005;
+        o_vpos.zw += cohesion * u_cohesion_power * 0.0025;
     }
 
     if (alignment_count > 0) {
         alignment /= float(alignment_count);
         alignment = normalize(alignment - o_vpos.zw);
-        o_vpos.zw += (alignment) * u_alignment_power * 0.005;
+        o_vpos.zw += (alignment) * u_alignment_power * 0.0025;
     }
 
     //o_vpos.xy += u_joystick_position * 0.005;
