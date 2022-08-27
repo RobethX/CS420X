@@ -164,22 +164,22 @@ void main() {
 
     // if (o_vpos.x < -bound) {
     //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     o_vpos.z += 0.05 * u_centering_power;
+    //     //o_vpos.z += 0.05 * u_centering_power;
     // }
     // if (o_vpos.x > bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     o_vpos.z -= 0.05 * u_centering_power;
+    //     o_vpos.zw = rotate(o_vpos.zw, -PI_4/20.);
+    //     //o_vpos.z -= 0.05 * u_centering_power;
     // }
     // if (o_vpos.y < -bound) {
     //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     o_vpos.w += 0.05 * u_centering_power;
+    //     //o_vpos.w += 0.05 * u_centering_power;
     // }
     // if (o_vpos.y > bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     o_vpos.w -= 0.05 * u_centering_power;
+    //     o_vpos.zw = rotate(o_vpos.zw, -PI_4/20.);
+    //     //o_vpos.w -= 0.05 * u_centering_power;
     // }
 
-    //o_vpos.zw = rotate(o_vpos.zw, 0.01);
+    o_vpos.zw = rotate(o_vpos.zw, 0.05 - random(o_vpos.xy) * 0.1); // add some randomness
 
     // move our agent in our new direction by one pixel
     o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
