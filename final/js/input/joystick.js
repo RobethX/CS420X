@@ -1,25 +1,3 @@
-class JoystickController extends InputController {
-    constructor() {
-        super();
-
-        this.left_joystick = new Joystick(0, {pos: "bottom-left", callback: this.onJoystickMove.bind(this)});
-        this.right_joystick = new Joystick(1, {pos: "bottom-right", callback: this.onJoystickMove.bind(this)});
-    }
-
-    onJoystickMove(joystick, x, y) {
-        //console.log(`Joystick ${joystick.id} moved to ${x}, ${y}`);
-        if (joystick == this.left_joystick) {
-            this.left_x = x;
-            this.left_y = y;
-            //console.log(`left joystick: ${x}, ${y}`);
-        } else if (joystick == this.right_joystick) {
-            this.right_x = x;
-            this.right_y = y;
-            //console.log(`right joystick: ${x}, ${y}`);
-        }
-    }
-}
-
 class Joystick {
     constructor(id, params = {}) {
         this.id = id;
