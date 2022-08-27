@@ -9,9 +9,9 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
 const PRESET = { // default
-    speed: 1,
+    speed: 2.5,
     separation_dist: 2.0,
-    cohesion_dist: 3.0,
+    cohesion_dist: 4.0,
     alignment_dist: 3.0,
     separation_power: 1.0,
     cohesion_power: 1.0,

@@ -139,16 +139,16 @@ void main() {
         cohesion_centroid /= float(cohesion_count);
         cohesion = cohesion_centroid - o_vpos.xy;
         cohesion = normalize(cohesion);
-        o_vpos.zw += cohesion * u_cohesion_power * 0.0025;
+        o_vpos.zw += cohesion * u_cohesion_power * 0.005;
     }
 
     if (alignment_count > 0) {
         alignment /= float(alignment_count);
-        alignment = normalize(alignment - o_vpos.zw);
+        alignment = alignment - o_vpos.zw;
         o_vpos.zw += (alignment) * u_alignment_power * 0.0025;
     }
 
-    //o_vpos.xy += u_joystick_position * 0.005;
+    //o_vpos.zw = rotate(o_vpos.zw, 0.05 - random(o_vpos.xy) * 0.1); // add some randomness
 
     if (length(o_vpos.zw) > 1.) {
         o_vpos.zw = normalize(o_vpos.zw);
@@ -158,26 +158,9 @@ void main() {
         o_vpos.zw += u_joystick_position * 0.01;
     }
 
-    float bound = 0.95;
-
-    // if (o_vpos.x < -bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     //o_vpos.z += 0.05 * u_centering_power;
-    // }
-    // if (o_vpos.x > bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, -PI_4/20.);
-    //     //o_vpos.z -= 0.05 * u_centering_power;
-    // }
-    // if (o_vpos.y < -bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, PI_4/20.);
-    //     //o_vpos.w += 0.05 * u_centering_power;
-    // }
-    // if (o_vpos.y > bound) {
-    //     o_vpos.zw = rotate(o_vpos.zw, -PI_4/20.);
-    //     //o_vpos.w -= 0.05 * u_centering_power;
-    // }
-
-    o_vpos.zw = rotate(o_vpos.zw, 0.05 - random(o_vpos.xy) * 0.1); // add some randomness
+    if (length(u_right_stick_position) > 0.01) {
+        o_vpos.zw = u_right_stick_position;
+    }
 
     // move our agent in our new direction by one pixel
     o_vpos.xy += o_vpos.zw * pixel * u_agent_speed;
@@ -192,12 +175,7 @@ void main() {
         //o_vpos.zw = rotate(o_vpos.zw, PI_4);
     }
 
-    //o_vpos.x = clamp(o_vpos.x, -1., 1.);
-    //o_vpos.y = clamp(o_vpos.y, -1., 1.);
-
     gl_PointSize = 1.;
-    //gl_Position = vec4( a_pos.x, a_pos.y, 0., 1. );
-    //gl_Position = vec4(o_vpos.x, o_vpos.y, 0., 1.);
     gl_Position = vec4((2. * (float(id) / float(u_agent_count)) - 1.), 0, 0, 1.);
 }
 `;
