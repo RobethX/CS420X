@@ -1,17 +1,12 @@
 ### Final Project
 
+Click [here](webgl.html) to view the simulation.
 The source code is available [here](https://github.com/RobethX/CS420X/blob/main/final/webgl.html).
 
 ---
 
-<iframe width="100%" height="auto" src="webgl.html" title="WebGL" frameborder="0" scrolling="no"></iframe>
-
-Click [here](webgl.html) for a fullscreen view.
+<iframe width="500" height="281.25" src="https://www.youtube.com/embed/hg6UU6aSlhQ?&autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture"></iframe>
 
 ---
 
 For the final project, I decided to implement a Boids simulation that could be interacted with using a joystick or your device's gyroscope. To get the boids to interact with each other, I had to store all the boid data somewhere that the vertex shader could access it. Because compute shaders are not supported by default and this version of WebGL does not have buffer textures, I opted to store the boid data as a one-dimensional texture using the framebuffer. This method was far from ideal and caused me many problems along the development process. Debugging the data texture read/write process proved to be a very timeconsuming process for me. Each boid reacts to the other boids within a configurable range to create a flock. The parameters of the boid algorithm can be modified using Tweakpane. I created a virtual joystick as well as adding support for hardware gamepads to control the flow of the boids. Alongside the virtual joystick, I fed the gyroscope sensor data to the boids for additional control over the flocks on mobile devices. To test out these input methods, I connected to my Android tablet over USB using Chrome's remote debugger. I found that the Sensor API I used for the gyroscope readings requires SSL to work. To get around this for testing I had to write an HTTPS web server script using Python, generate certificates, and import them onto my tablet. Luckily, my Github pages sites use HTTPS, so this was only a problem for development. I started this development process with the goal of implementing different ways to interact with the Physarium simulation, but I found I could not resist the temptation of making a Boids simulation instead. This led to many extra hours of debugging and figuring out how to work around the limitations of WebGL. With more time, I would have made the simulation 3D and implemented a better system of storing data to bypass some of the texture size limitations I encountered on my mobile devices.
-
----
-
-<iframe width="500" height="281.25" src="https://www.youtube.com/embed/hg6UU6aSlhQ?&autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture"></iframe>
