@@ -1,7 +1,7 @@
 ### Final Project
 
 Click [here](webgl.html) to view the simulation.
-The source code is available [here](https://github.com/RobethX/CS420X/blob/main/final/webgl.html).
+The source code is available [here](https://github.com/RobethX/CS420X/blob/main/final).
 
 ---
 
