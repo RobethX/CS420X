@@ -21,7 +21,7 @@ function startAccelerometer() {
             } else if (e.error.name === "NotReadableError") {
                 console.log("Accelerometer is not available.");
             } else {
-                console.error(e);
+                console.error(e.error);
             }
         });
 
@@ -32,7 +32,7 @@ function startAccelerometer() {
         } else if (error.name === "ReferenceError") {
             console.log("Accelerometer is not supported by the User Agent.");
         } else {
-            console.error(e);
+            console.error(error);
         }
     }
 }
@@ -55,7 +55,7 @@ function startGyroscope() {
             } else if (e.error.name === "NotReadableError") {
                 console.log("Gyroscope is not available.");
             } else {
-                console.error(e);
+                console.error(e.error);
             }
         });
 
@@ -66,7 +66,7 @@ function startGyroscope() {
         } else if (error.name === "ReferenceError") {
             console.log("Gyroscope is not supported by the User Agent.");
         } else {
-            console.error(e);
+            console.error(error);
         }
     }
 }
@@ -89,7 +89,7 @@ function startMagnetometer() {
             } else if (e.error.name === "NotReadableError") {
                 console.log("Magnetometer is not available.");
             } else {
-                console.error(e);
+                console.error(e.error);
             }
         });
 
@@ -100,7 +100,7 @@ function startMagnetometer() {
         } else if (error.name === "ReferenceError") {
             console.log("Magnetometer is not supported by the User Agent.");
         } else {
-            console.error(e);
+            console.error(error);
         }
     }
 }
@@ -127,7 +127,7 @@ function startOrientationSensor() {
             } else if (e.error.name === "NotReadableError") {
                 console.log("Orientation is not available.");
             } else {
-                console.error(e);
+                console.error(e.error);
             }
         });
         
@@ -138,7 +138,7 @@ function startOrientationSensor() {
         } else if (error.name === "ReferenceError") {
             console.log("Absolute Orientation Sensor is not supported by the User Agent.");
         } else {
-            console.error(e);
+            console.error(error);
         }
     }
 }

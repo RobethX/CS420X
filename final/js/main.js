@@ -4,9 +4,9 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     textureBack, textureFront, framebuffer,
     simulationProgram, renderProgram,
     dimensions = { width:null, height:null },
-    agentCount = 5000,
+    agentCount = 4096,
     pane, params, tab, fAgent, fJoystick, fGamepad, fOrientation,
-    cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
+    cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos, uGyroscopeVector
 
 const PRESET = { // default
     speed: 2.5,
@@ -345,6 +345,9 @@ function makeInputController() {
     uRightStickPos = gl.getUniformLocation(simulationProgram, "u_right_stick_position");
     gl.uniform2f(uRightStickPos, 0, 0);
 
+    uGyroscopeVector = gl.getUniformLocation(simulationProgram, "u_gyroscope_vector");
+    gl.uniform3f(uGyroscopeVector, 0, 0, 0);
+
     // startAccelerometer();
     startGyroscope();
     // startMagnetometer();
@@ -400,15 +403,21 @@ function makeOrientationPane() {
     //     console.info("accelerometer: " + params.accelerometer)
     // });
 
-    fOrientation.addInput(params, "gyroscope").on("change", () => {
-        console.info("gyroscope: " + params.gyroscope)
+    gl.useProgram(simulationProgram)
+    const uUseGyroscope = gl.getUniformLocation(simulationProgram, "u_use_gyroscope");
+    gl.uniform1f(uUseGyroscope, params.gyroscope);
+    fOrientation.addInput(params, "gyroscope").on("change", e => {
+        gl.useProgram(simulationProgram)
+        gl.uniform1f(uUseGyroscope, e.value);
     });
 
     // fOrientation.addInput(params, "magnetometer").on("change", () => {
     //     console.info("magnetometer: " + params.magnetometer)
     // });
 
-    fOrientation.addMonitor(params, "debug");
+    fOrientation.addMonitor(params, "debug", {
+        multiline: true
+    });
 }
 
 function inputLoop() {
@@ -428,12 +437,15 @@ function inputLoop() {
         }
     }
 
-    if (gyroscope) {
+    if (gyroscope && gyroscope.hasReading) {
         let gx = gyroscope.x || 0;
         let gy = gyroscope.y || 0;
         let gz = gyroscope.z || 0;
 
-        params.debug = gx + " " + gy + " " + gz;
+        gl.useProgram(simulationProgram);
+        gl.uniform3f(uGyroscopeVector, gx, gy, gz);
+
+        params.debug = gx + "\n" + gy + "\n" + gz;
     }
 }
 

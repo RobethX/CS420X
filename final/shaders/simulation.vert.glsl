@@ -29,6 +29,9 @@ uniform vec2 u_cursor_position;
 uniform vec2 u_joystick_position;
 uniform vec2 u_right_stick_position;
 
+uniform bool u_use_gyroscope;
+uniform vec3 u_gyroscope_vector;
+
 uniform sampler2D uSampler;
 //uniform samplerBuffer temp;
 
@@ -147,6 +150,10 @@ void main() {
 
     if (length(u_right_stick_position) > 0.01) {
         o_vpos.zw = u_right_stick_position;
+    }
+
+    if (u_use_gyroscope) {
+        o_vpos.zw += u_gyroscope_vector.xy * 0.05;
     }
 
     // move our agent in our new direction by one pixel
