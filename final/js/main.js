@@ -45,12 +45,23 @@ window.onload = function() {
     // define drawing area of canvas. bottom corner, width / height
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
 
+    keepAwake()
     makeTweakPane()
     makeSimulationPhase()
     makeInteractionPhase()
     makeRenderPhase()
     makeTextures()
     render()
+}
+
+function keepAwake() {
+    let wakeLock;
+
+    if ("wakeLock" in navigator) {
+        navigator.requestWakeLock("screen").then(function(wl) {
+            wakeLock = wl;
+        });
+    }
 }
 
 function makeTweakPane() {
