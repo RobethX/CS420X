@@ -58,9 +58,11 @@ function keepAwake() {
     let wakeLock;
 
     if ("wakeLock" in navigator) {
-        navigator.requestWakeLock("screen").then(function(wl) {
-            wakeLock = wl;
-        });
+        try {
+            wakeLock = navigator.wakeLock.request("screen");
+        } catch (e) {
+            console.log(e);
+        }
     }
 }
 
