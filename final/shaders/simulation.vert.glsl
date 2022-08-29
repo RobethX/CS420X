@@ -37,6 +37,14 @@ uniform sampler2D uSampler;
 // zw wiil store our heading / direction
 out vec4 o_vpos;
 
+vec4 packData(vec4 data) {
+    return (data + 1.0) / 2.0;
+}
+
+vec4 unpackData(vec4 data) {
+    return data * 2.0 - 1.0;
+}
+
 // this function accepts a direction (header) for a
 // agent and a rotation in radians, returning the
 // new, rotated direction
@@ -51,24 +59,9 @@ float random(in vec2 p) {
     return fract(sin(dot(p.xy, vec2(42.6852, 11.2225))) * 12366.4566);
 }
 
-// pos - position of agent
-// dir - heading of agent
-// angle - direction to sense, in radians
-// distance - distance to sense
-float readSensor( vec2 pos, vec2 dir, float angle, vec2 distance ) {
-    vec2 newangle  = rotate( dir, angle  );
-    vec2 offset = newangle * distance;
-
-    if ((pos + offset).x < 0. || (pos + offset).x > resolution.x || (pos + offset).y < 0. || (pos + offset).y > resolution.y) {
-        return 0.0;
-    }
-
-    return texture( uSampler, pos + offset ).r;
-}
-
 void main() {
     // initialize feedback transform output
-    o_vpos = a_pos;
+    o_vpos = unpackData(a_pos);
 
     int id = gl_VertexID;
 
@@ -76,16 +69,9 @@ void main() {
     vec2 pixel = 1. / resolution;
     ivec2 ires = ivec2(resolution);
     
-    // how far ahead should sensing occur? this is fun to play with
-    //vec2 sensorDistance = pixel * (u_sensor_distance + u_right_stick_position.x * 3.); //9.
-    
     // normalize our {-1,1} vertex coordinates to {0,1} for texture lookups
     vec2 pos = (1. + a_pos.xy) / 2.;
     ivec2 ipos = ivec2(a_pos.xy);
-
-    // angle to turn
-    //float turn_angle = PI_4 * u_agent_rotate;
-    //turn_angle -= u_right_stick_position.y / 4.;
 
     vec2 separation = vec2(0.0);
     int separation_count = 0;
@@ -105,6 +91,7 @@ void main() {
         ivec2 coord = ivec2(i,0);
         //vec4 neighbor = texelFetch(uSampler, coord, 0);
         vec4 neighbor = texture(uSampler, vec2((float(i) + 0.5)/float(u_agent_count), 1.));
+        neighbor = unpackData(neighbor);
         float dist = distance(o_vpos.xy, neighbor.xy);
         vec2 diff = o_vpos.xy - neighbor.xy;
 
@@ -139,13 +126,13 @@ void main() {
         cohesion_centroid /= float(cohesion_count);
         cohesion = cohesion_centroid - o_vpos.xy;
         cohesion = normalize(cohesion);
-        o_vpos.zw += cohesion * u_cohesion_power * 0.005;
+        o_vpos.zw += cohesion * u_cohesion_power * 0.007;
     }
 
     if (alignment_count > 0) {
         alignment /= float(alignment_count);
         alignment = alignment - o_vpos.zw;
-        o_vpos.zw += (alignment) * u_alignment_power * 0.0025;
+        o_vpos.zw += (alignment) * u_alignment_power * 0.005;
     }
 
     //o_vpos.zw = rotate(o_vpos.zw, 0.05 - random(o_vpos.xy) * 0.1); // add some randomness
@@ -174,6 +161,8 @@ void main() {
         o_vpos.y *= -1.;
         //o_vpos.zw = rotate(o_vpos.zw, PI_4);
     }
+
+    o_vpos = packData(o_vpos);
 
     gl_PointSize = 1.;
     gl_Position = vec4((2. * (float(id) / float(u_agent_count)) - 1.), 0, 0, 1.);

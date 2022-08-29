@@ -4,7 +4,7 @@ let gl, uTime, uRes, uResDD, transformFeedback,
     textureBack, textureFront, framebuffer,
     simulationProgram, renderProgram,
     dimensions = { width:null, height:null },
-    agentCount = 1000,
+    agentCount = 5000,
     pane, params, tab, fAgent, fJoystick, fGamepad, fOrientation,
     cursorPos, joystick, inputPos, uJoystickPos, uRightStickPos
 
@@ -12,7 +12,7 @@ const PRESET = { // default
     speed: 2.5,
     separation_dist: 2.0,
     cohesion_dist: 4.0,
-    alignment_dist: 3.0,
+    alignment_dist: 4.0,
     separation_power: 1.0,
     cohesion_power: 1.0,
     alignment_power: 1.0,
